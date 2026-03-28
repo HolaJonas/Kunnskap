@@ -1,6 +1,7 @@
 import "./App.css";
-import { KnowledgeList } from "./KnowledgeList";
 import { useState } from "react";
+import { Knowledge } from "./types/knowledge";
+import { EditMenu } from "./EditMenu";
 
 function parseLatex(str: string) {
   return str
@@ -11,6 +12,32 @@ function parseLatex(str: string) {
 
 function App() {
   let [showKnowledgeList, setShowKnowledgeList] = useState(false);
+  let [knowledgeBase, setKnowledgeBase] = useState<Knowledge[]>([
+    {
+      question: parseLatex("Solve $1 + 1$"),
+      answer: parseLatex("$2$"),
+      bidirectional: false,
+      category: "Math",
+    },
+    {
+      question: parseLatex("Solve $2 + 2$"),
+      answer: parseLatex("$4$"),
+      bidirectional: false,
+      category: "Math",
+    },
+    {
+      question: parseLatex("Solve $1 + 1$"),
+      answer: parseLatex("$2$"),
+      bidirectional: false,
+      category: "Math",
+    },
+  ]);
+
+  function handleDeleteEntries(indicesToDelete: number[]) {
+    setKnowledgeBase((prev) =>
+      prev.filter((_, currentIndex) => !indicesToDelete.includes(currentIndex)),
+    );
+  }
 
   return (
     <div className="p-4">
@@ -21,29 +48,11 @@ function App() {
       >
         Edit Knowledge
       </div>
-      <KnowledgeList
-        hide={!showKnowledgeList}
-        knowledgeBase={[
-          {
-            question: parseLatex("Solve $1 + 1$"),
-            answer: parseLatex("$2$"),
-            bidirectional: false,
-            category: "Math",
-          },
-          {
-            question: parseLatex("Solve $2 + 2$"),
-            answer: parseLatex("$4$"),
-            bidirectional: false,
-            category: "Math",
-          },
-          {
-            question: parseLatex("Solve $1 + 1$"),
-            answer: parseLatex("$2$"),
-            bidirectional: false,
-            category: "Math",
-          },
-        ]}
-      ></KnowledgeList>
+      <EditMenu
+        knowledgeBase={knowledgeBase}
+        hide={showKnowledgeList}
+        onDelete={handleDeleteEntries}
+      />
     </div>
   );
 }
