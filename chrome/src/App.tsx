@@ -2,6 +2,7 @@ import "./App.css";
 import { useState } from "react";
 import { Knowledge } from "./types/knowledge";
 import { EditMenu } from "./EditMenu";
+import { TimerMenu } from "./TimerMenu";
 
 function parseLatex(str: string) {
   return str
@@ -11,7 +12,6 @@ function parseLatex(str: string) {
 }
 
 function App() {
-  let [showKnowledgeList, setShowKnowledgeList] = useState(false);
   let [knowledgeBase, setKnowledgeBase] = useState<Knowledge[]>([
     {
       question: parseLatex("Solve $1 + 1$"),
@@ -40,19 +40,10 @@ function App() {
   }
 
   return (
-    <div className="p-4">
-      <h1>Kunnskap</h1>
-      <div
-        className="w-auto h-auto p-2"
-        onClick={() => setShowKnowledgeList(!showKnowledgeList)}
-      >
-        Edit Knowledge
-      </div>
-      <EditMenu
-        knowledgeBase={knowledgeBase}
-        hide={showKnowledgeList}
-        onDelete={handleDeleteEntries}
-      />
+    <div className="flex-row space-y-2 w-60">
+      <h1 className="pl-5">Kunnskap</h1>
+      <TimerMenu />
+      <EditMenu knowledgeBase={knowledgeBase} onDelete={handleDeleteEntries} />
     </div>
   );
 }

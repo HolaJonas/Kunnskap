@@ -3,12 +3,12 @@ import { Knowledge } from "./types/knowledge";
 import { KnowledgeList } from "./KnowledgeList";
 
 interface EditMenuProps {
-  hide: boolean;
   knowledgeBase: Knowledge[];
   onDelete: (indices: number[]) => void;
 }
 
 function EditMenu(props: EditMenuProps) {
+  let [showKnowledgeList, setShowKnowledgeList] = useState(false);
   let [selectedKnowledge, setSelectedKnowledge] = useState<number[]>([]);
 
   function handleSelection(idx: number) {
@@ -18,8 +18,14 @@ function EditMenu(props: EditMenuProps) {
   }
 
   return (
-    <>
-      {!props.hide && (
+    <section className="flex w-full flex-col justify-center rounded-xl border-2 border-slate-300 p-2">
+      <button
+        className="w-auto h-auto p-2"
+        onClick={() => setShowKnowledgeList(!showKnowledgeList)}
+      >
+        Edit Knowledge
+      </button>
+      {!showKnowledgeList && (
         <div>
           <div className="justify-evenly gap-0 flex">
             {`${selectedKnowledge.length} entries selected`}
@@ -41,7 +47,7 @@ function EditMenu(props: EditMenuProps) {
           />
         </div>
       )}
-    </>
+    </section>
   );
 }
 
