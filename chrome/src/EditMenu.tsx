@@ -25,7 +25,7 @@ function EditMenu(props: EditMenuProps) {
       >
         Edit Knowledge
       </button>
-      {!showKnowledgeList && (
+      {showKnowledgeList && (
         <div>
           <div className="justify-evenly gap-0 flex">
             {`${selectedKnowledge.length} entries selected`}
