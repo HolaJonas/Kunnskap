@@ -1,5 +1,6 @@
 interface TimerVisualProps {
   toggleIsRunning: () => void;
+  time: number;
 }
 
 function TimerVisual(props: TimerVisualProps) {
@@ -10,7 +11,7 @@ function TimerVisual(props: TimerVisualProps) {
           className="bg-white rounded-full w-14 h-14 flex items-center justify-center"
           onClick={() => props.toggleIsRunning()}
         >
-          <div className="text-center">Test</div>
+          <div className="text-center">{props.time}</div>
         </div>
       </div>
     </>

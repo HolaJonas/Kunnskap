@@ -13,7 +13,8 @@ function TimerSettings(props: TimerSettingsProps) {
   }
 
   function verifyPositiveNumericInput(input: string) {
-    return Number(input) < 0 || Number.isNaN(Number(input)) ? 1 : Number(input);
+    const value = Number(input);
+    return value < 0 || Number.isNaN(value) ? 0 : Math.floor(value);
   }
 
   return (
