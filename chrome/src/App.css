@@ -1,0 +1,14 @@
+@property --progress {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 100;
+}
+
+.timer-ring {
+  --progress: 100;
+  background: conic-gradient(
+    #f59e0b 0 calc(var(--progress) * 1%),
+    #d1d5db calc(var(--progress) * 1%) 100%
+  );
+  transition: --progress 0.6s ease-in-out;
+}

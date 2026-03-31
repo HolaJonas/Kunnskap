@@ -1,6 +1,10 @@
+import type { CSSProperties } from "react";
+import "./App.css";
+
 interface TimerVisualProps {
   toggleIsRunning: () => void;
   time: number;
+  progress: number;
 }
 
 function leadingZero(number: number) {
@@ -16,17 +20,20 @@ function convertSecondsToHMS(seconds: number) {
 }
 
 function TimerVisual(props: TimerVisualProps) {
+  const clampedProgress = Math.min(Math.max(props.progress, 0), 100);
+
   return (
-    <>
-      <div className="rounded-full w-20 h-20 bg-amber-400 justify-center flex items-center">
-        <div
-          className="bg-white rounded-full w-14 h-14 flex items-center justify-center"
-          onClick={() => props.toggleIsRunning()}
-        >
-          <div className="text-center">{convertSecondsToHMS(props.time)}</div>
-        </div>
+    <div
+      className="timer-ring rounded-full w-20 h-20 justify-center flex items-center"
+      style={{ "--progress": clampedProgress } as CSSProperties}
+    >
+      <div
+        className="bg-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer"
+        onClick={() => props.toggleIsRunning()}
+      >
+        <div className="text-center">{convertSecondsToHMS(props.time)}</div>
       </div>
-    </>
+    </div>
   );
 }
 

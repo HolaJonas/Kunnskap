@@ -7,6 +7,7 @@ function TimerMenu() {
   let [period, setPeriod] = useState(10);
   let [timeRemaining, setTimeRemaining] = useState(10);
   let [isRunning, setIsRunning] = useState(false);
+  const progress = period > 0 ? (timeRemaining / period) * 100 : 0;
 
   useEffect(() => {
     setTimeRemaining(period);
@@ -36,6 +37,7 @@ function TimerMenu() {
       <TimerVisual
         toggleIsRunning={() => setIsRunning(!isRunning)}
         time={timeRemaining}
+        progress={progress}
       />
       <button onClick={() => setShowTimerSettings(!showTimerSettings)}>
         Edit Timer
