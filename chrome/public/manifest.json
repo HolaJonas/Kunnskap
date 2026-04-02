@@ -1,0 +1,13 @@
+{
+  "name": "Kunnskap",
+  "description": "A simple browser extension randomly inserting vocabulary or knowledge questions.",
+  "version": "1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_popup": "index.html"
+  },
+  "permissions": ["alarms", "storage", "nativeMessaging"],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
