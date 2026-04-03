@@ -16,6 +16,38 @@ async function setTimerState(updated) {
   await chrome.storage.local.set({ timerState: updated });
 }
 
+async function showModalInTab(tabId) {
+  try {
+    await chrome.tabs.sendMessage(tabId, { type: "modal:create" });
+    return;
+  } catch (error) {
+    const message = String(error?.message ?? "");
+    const hasNoReceiver = message.includes("Receiving end does not exist");
+    if (!hasNoReceiver) {
+      console.error("sendMessage failed", tabId, error);
+      return;
+    }
+  }
+
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ["contentScript.js"],
+    });
+    await chrome.tabs.sendMessage(tabId, { type: "modal:create" });
+  } catch (error) {
+    const message = String(error?.message ?? "");
+    if (
+      !(
+        message.includes("Cannot access") ||
+        message.includes("The extensions gallery cannot be scripted")
+      )
+    ) {
+      console.error("modal addition failed", tabId, error);
+    }
+  }
+}
+
 chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
   (async () => {
     const current = await getTimerState();
@@ -117,5 +149,6 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
   await setTimerState(nextState);
 
-  await chrome.action.openPopup();
+  const tabs = await chrome.tabs.query({});
+  await Promise.all(tabs.map((tab) => showModalInTab(tab.id)));
 });
