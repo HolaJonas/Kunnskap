@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Knowledge } from "./types/knowledge";
-import { KnowledgeList } from "./KnowledgeList";
+import { KnowledgeCategory } from "./types/knowledgeCategory";
+import { KnowledgeCategoryList } from "./KnowledgeCategoryList";
 
 interface EditMenuProps {
-  knowledgeBase: Knowledge[];
+  knowledgeBase: KnowledgeCategory[];
   onDelete: (indices: number[]) => void;
 }
 
@@ -12,9 +12,9 @@ function EditMenu(props: EditMenuProps) {
   let [selectedKnowledge, setSelectedKnowledge] = useState<number[]>([]);
 
   function handleSelection(idx: number) {
-    if (selectedKnowledge.includes(idx))
-      setSelectedKnowledge(selectedKnowledge.filter((v) => v !== idx));
-    else setSelectedKnowledge([...selectedKnowledge, idx]);
+    setSelectedKnowledge((prev) =>
+      prev.includes(idx) ? prev.filter((v) => v !== idx) : [...prev, idx],
+    );
   }
 
   return (
@@ -39,9 +39,8 @@ function EditMenu(props: EditMenuProps) {
               Delete selected
             </button>
           </div>
-          <KnowledgeList
+          <KnowledgeCategoryList
             knowledgeBase={props.knowledgeBase}
-            onDelete={props.onDelete}
             onSelect={handleSelection}
             selected={(idx) => selectedKnowledge.includes(idx)}
           />

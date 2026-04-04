@@ -1,6 +1,6 @@
 import "./App.css";
 import { useState } from "react";
-import { Knowledge } from "./types/knowledge";
+import { KnowledgeCategory } from "./types/knowledgeCategory";
 import { EditMenu } from "./EditMenu";
 import { TimerMenu } from "./TimerMenu";
 
@@ -12,31 +12,53 @@ function parseLatex(str: string) {
 }
 
 function App() {
-  let [knowledgeBase, setKnowledgeBase] = useState<Knowledge[]>([
+  let [knowledgeBase, setKnowledgeBase] = useState<KnowledgeCategory[]>([
     {
-      question: parseLatex("Solve $1 + 1$"),
-      answer: parseLatex("$2$"),
-      bidirectional: false,
-      category: "Math",
+      name: "test",
+      knowledgeBase: [
+        {
+          question: parseLatex("Solve $1 + 1$"),
+          answer: parseLatex("$2$"),
+          bidirectional: false,
+          category: "Math",
+        },
+        {
+          question: parseLatex("Solve $2 + 2$"),
+          answer: parseLatex("$4$"),
+          bidirectional: false,
+          category: "Math",
+        },
+      ],
     },
     {
-      question: parseLatex("Solve $2 + 2$"),
-      answer: parseLatex("$4$"),
-      bidirectional: false,
-      category: "Math",
-    },
-    {
-      question: parseLatex("Solve $1 + 1$"),
-      answer: parseLatex("$2$"),
-      bidirectional: false,
-      category: "Math",
+      name: "test2",
+      knowledgeBase: [
+        {
+          question: parseLatex("Solve $1 + 1$"),
+          answer: parseLatex("$2$"),
+          bidirectional: false,
+          category: "Math",
+        },
+      ],
     },
   ]);
 
   function handleDeleteEntries(indicesToDelete: number[]) {
-    setKnowledgeBase((prev) =>
-      prev.filter((_, currentIndex) => !indicesToDelete.includes(currentIndex)),
-    );
+    setKnowledgeBase((prev) => {
+      const toDelete = new Set(indicesToDelete);
+      let flatIndex = 0;
+
+      return prev
+        .map((category) => ({
+          ...category,
+          knowledgeBase: category.knowledgeBase.filter(() => {
+            const keep = !toDelete.has(flatIndex);
+            flatIndex += 1;
+            return keep;
+          }),
+        }))
+        .filter((category) => category.knowledgeBase.length > 0);
+    });
   }
 
   return (
