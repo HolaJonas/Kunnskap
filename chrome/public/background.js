@@ -126,7 +126,7 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
         remainingSeconds: durationSeconds,
         isRunning: false,
         endTimeMs: null,
-        expired: false,
+        expired: current.expired,
       };
 
       await setTimerState(nextState);
@@ -140,10 +140,19 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     }
 
     if (message?.type === "modal:exited") {
+      const durationSeconds = Math.max(Number(current.durationSeconds), 0);
+      const endTimeMs = Date.now() + durationSeconds * 1000;
+
+      await chrome.alarms.clear(TIMER_ALARM_NAME);
+      if (endTimeMs) {
+        await chrome.alarms.create(TIMER_ALARM_NAME, { when: endTimeMs });
+      }
+
       const nextState = {
         ...current,
-        isRunning: false,
-        endTimeMs: null,
+        remainingSeconds: durationSeconds,
+        isRunning: durationSeconds > 0,
+        endTimeMs,
         expired: false,
       };
 
@@ -171,9 +180,13 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name !== TIMER_ALARM_NAME) return;
 
   const current = await getTimerState();
+  const durationSeconds = Math.max(
+    Number(current.durationSeconds ?? defaultTimerState.durationSeconds),
+    0,
+  );
   const nextState = {
     ...current,
-    remainingSeconds: 10,
+    remainingSeconds: durationSeconds,
     isRunning: false,
     endTimeMs: null,
     expired: true,

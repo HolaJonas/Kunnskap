@@ -3,4 +3,5 @@ export type TimerState = {
   remainingSeconds: number;
   isRunning: boolean;
   endTimeMs: number | null;
+  expired: boolean;
 };

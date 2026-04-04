@@ -28,6 +28,7 @@ function TimerMenu() {
   let [timeRemaining, setTimeRemaining] = useState(DEFAULT_PERIOD);
   let [isRunning, setIsRunning] = useState(false);
   let [endTimeMs, setEndTimeMs] = useState<number | null>(null);
+  let [isModalShowing, setIsModalShowing] = useState(false);
   const progress = period > 0 ? (timeRemaining / period) * 100 : 0;
 
   useEffect(() => {
@@ -41,6 +42,7 @@ function TimerMenu() {
         0,
       );
       setPeriod(nextPeriod);
+      setIsModalShowing(Boolean(state.expired));
 
       if (state.isRunning && state.endTimeMs) {
         setIsRunning(true);
@@ -68,6 +70,7 @@ function TimerMenu() {
         0,
       );
       setPeriod(nextPeriod);
+      setIsModalShowing(Boolean(state.expired));
 
       if (state.isRunning && state.endTimeMs) {
         setIsRunning(true);
@@ -123,7 +126,7 @@ function TimerMenu() {
       return;
     }
 
-    if (timeRemaining <= 0) return;
+    if (isModalShowing || timeRemaining <= 0) return;
 
     const response = await sendTimerMessage({
       type: "timer:start",
@@ -156,11 +159,15 @@ function TimerMenu() {
         toggleIsRunning={toggleRunning}
         time={timeRemaining}
         progress={progress}
+        disabled={isModalShowing}
       />
       <button onClick={() => setShowTimerSettings(!showTimerSettings)}>
         Edit Timer
       </button>
-      <TimerSettings setPeriod={applyPeriod} hide={!showTimerSettings} />
+      <TimerSettings
+        setPeriod={applyPeriod}
+        hide={!showTimerSettings}
+      />
     </section>
   );
 }

@@ -5,6 +5,7 @@ interface TimerVisualProps {
   toggleIsRunning: () => void;
   time: number;
   progress: number;
+  disabled: boolean;
 }
 
 function leadingZero(number: number) {
@@ -28,8 +29,11 @@ function TimerVisual(props: TimerVisualProps) {
       style={{ "--progress": clampedProgress } as CSSProperties}
     >
       <div
-        className="bg-white rounded-full w-16 h-16 flex items-center justify-center cursor-pointer"
-        onClick={() => props.toggleIsRunning()}
+        className={`bg-white rounded-full w-16 h-16 flex items-center justify-center ${props.disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+        onClick={() => {
+          if (props.disabled) return;
+          props.toggleIsRunning();
+        }}
       >
         <div className="text-center">{convertSecondsToHMS(props.time)}</div>
       </div>
