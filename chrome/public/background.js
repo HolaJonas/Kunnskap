@@ -5,6 +5,7 @@ const defaultTimerState = {
   remainingSeconds: 10,
   isRunning: false,
   endTimeMs: null,
+  expired: false,
 };
 
 async function getTimerState() {
@@ -48,6 +49,16 @@ async function showModalInTab(tabId) {
   }
 }
 
+async function removeModalInTab(tabId) {
+  try {
+    await chrome.tabs.sendMessage(tabId, { type: "modal:remove" });
+  } catch (error) {
+    const message = String(error?.message ?? "");
+    const hasNoReceiver = message.includes("Receiving end does not exist");
+    if (!hasNoReceiver) console.error("modal removal failed", tabId, error);
+  }
+}
+
 chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
   (async () => {
     const current = await getTimerState();
@@ -70,6 +81,7 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
         remainingSeconds: durationSeconds,
         isRunning: durationSeconds > 0,
         endTimeMs: durationSeconds > 0 ? endTimeMs : null,
+        expired: false,
       };
 
       await setTimerState(nextState);
@@ -91,6 +103,7 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
         remainingSeconds,
         isRunning: false,
         endTimeMs: null,
+        expired: false,
       };
 
       await setTimerState(nextState);
@@ -113,6 +126,7 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
         remainingSeconds: durationSeconds,
         isRunning: false,
         endTimeMs: null,
+        expired: false,
       };
 
       await setTimerState(nextState);
@@ -122,6 +136,23 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
 
     if (message?.type === "timer:getState") {
       sendResponse({ ok: true, state: current });
+      return;
+    }
+
+    if (message?.type === "modal:exited") {
+      const nextState = {
+        ...current,
+        isRunning: false,
+        endTimeMs: null,
+        expired: false,
+      };
+
+      await setTimerState(nextState);
+
+      const tabs = await chrome.tabs.query({});
+      await Promise.all(tabs.map((tab) => removeModalInTab(tab.id)));
+
+      sendResponse({ ok: true, state: nextState });
       return;
     }
 
@@ -142,13 +173,32 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   const current = await getTimerState();
   const nextState = {
     ...current,
-    remainingSeconds: 0,
+    remainingSeconds: 10,
     isRunning: false,
     endTimeMs: null,
+    expired: true,
   };
 
   await setTimerState(nextState);
 
   const tabs = await chrome.tabs.query({});
   await Promise.all(tabs.map((tab) => showModalInTab(tab.id)));
+});
+
+async function showModalBasedOnState(tabId) {
+  const state = await getTimerState();
+  if (!state.expired) return;
+  await showModalInTab(tabId);
+}
+
+chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+  await showModalBasedOnState(tabId);
+});
+
+chrome.tabs.onCreated.addListener(async (tab) => {
+  await showModalBasedOnState(tab.id);
+});
+
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+  if (changeInfo.status === "complete") await showModalBasedOnState(tabId);
 });

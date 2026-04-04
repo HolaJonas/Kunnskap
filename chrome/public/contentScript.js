@@ -5,6 +5,10 @@ function removeModal() {
   if (existing) existing.remove();
 }
 
+async function setExited() {
+  await chrome.runtime.sendMessage({ type: "modal:exited" });
+}
+
 function createModal() {
   if (document.getElementById(MODAL_ROOT_ID)) return;
 
@@ -43,7 +47,7 @@ function createModal() {
   exitButton.style.background = "red";
   exitButton.style.color = "#000000";
   exitButton.style.cursor = "pointer";
-  exitButton.addEventListener("click", removeModal);
+  exitButton.addEventListener("click", setExited);
 
   background.appendChild(heading);
   background.appendChild(body);
@@ -54,4 +58,5 @@ function createModal() {
 
 chrome.runtime.onMessage.addListener((message) => {
   if (message?.type === "modal:create") createModal();
+  if (message?.type === "modal:remove") removeModal();
 });
