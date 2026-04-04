@@ -164,10 +164,7 @@ function TimerMenu() {
       <button onClick={() => setShowTimerSettings(!showTimerSettings)}>
         Edit Timer
       </button>
-      <TimerSettings
-        setPeriod={applyPeriod}
-        hide={!showTimerSettings}
-      />
+      <TimerSettings setPeriod={applyPeriod} hide={!showTimerSettings} />
     </section>
   );
 }
