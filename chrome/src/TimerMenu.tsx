@@ -130,7 +130,6 @@ function TimerMenu() {
 
     const response = await sendTimerMessage({
       type: "timer:start",
-      payload: { durationSeconds: timeRemaining },
     });
 
     if (!response.ok || !response.state) return;

@@ -128,14 +128,20 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
         ),
         0,
       );
+      const nextDurationSeconds = Math.max(
+        Number(current.durationSeconds ?? durationSeconds),
+        0,
+      );
       const endTimeMs = Date.now() + durationSeconds * 1000;
 
       await chrome.alarms.clear(TIMER_ALARM_NAME);
-      await chrome.alarms.create(TIMER_ALARM_NAME, { when: endTimeMs });
+      if (durationSeconds > 0) {
+        await chrome.alarms.create(TIMER_ALARM_NAME, { when: endTimeMs });
+      }
 
       const nextState = {
         ...current,
-        durationSeconds,
+        durationSeconds: nextDurationSeconds,
         remainingSeconds: durationSeconds,
         isRunning: durationSeconds > 0,
         endTimeMs: durationSeconds > 0 ? endTimeMs : null,
