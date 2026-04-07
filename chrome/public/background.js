@@ -1,4 +1,6 @@
-const TIMER_ALARM_NAME = "kunnskap_timer";
+const TIMER_ALARM_NAME = "kunnskapTimer";
+const KNOWLEDGE_STORAGE_KEY = "knowledgeBase";
+const ACTIVE_QUESTION_STORAGE_KEY = "activeQuestion";
 
 const defaultTimerState = {
   durationSeconds: 10,
@@ -7,6 +9,21 @@ const defaultTimerState = {
   endTimeMs: null,
   expired: false,
 };
+
+let shuffled_questions = [];
+let knowledgePool = [];
+let activeQuestion = null;
+
+function shuffleArray(arr) {
+  return arr
+    .map((val) => ({ val, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ val }) => val);
+}
+
+function normToArray(questions) {
+  return Array.isArray(questions) ? questions : [];
+}
 
 async function getTimerState() {
   const stored = await chrome.storage.local.get("timerState");
@@ -17,9 +34,43 @@ async function setTimerState(updated) {
   await chrome.storage.local.set({ timerState: updated });
 }
 
-async function showModalInTab(tabId) {
+async function readKnowledgePoolFromStorage() {
+  const stored = await chrome.storage.local.get(KNOWLEDGE_STORAGE_KEY);
+  return normToArray(stored[KNOWLEDGE_STORAGE_KEY]);
+}
+
+async function ensureLoadKnowledgePool() {
+  if (knowledgePool.length > 0) return;
+  knowledgePool = await readKnowledgePoolFromStorage();
+  if (shuffled_questions.length === 0 && knowledgePool.length > 0) {
+    shuffled_questions = shuffleArray(
+      Array.from({ length: knowledgePool.length }, (_, i) => i),
+    );
+  }
+}
+
+async function getActiveQuestion() {
+  if (activeQuestion) return activeQuestion;
+  const stored = await chrome.storage.local.get(ACTIVE_QUESTION_STORAGE_KEY);
+  return stored[ACTIVE_QUESTION_STORAGE_KEY];
+}
+
+async function setActiveQuestion(question) {
+  activeQuestion = question;
+  await chrome.storage.local.set({ [ACTIVE_QUESTION_STORAGE_KEY]: question });
+}
+
+async function clearActiveQuestion() {
+  activeQuestion = null;
+  await chrome.storage.local.remove(ACTIVE_QUESTION_STORAGE_KEY);
+}
+
+async function showModalInTab(tabId, question) {
   try {
-    await chrome.tabs.sendMessage(tabId, { type: "modal:create" });
+    await chrome.tabs.sendMessage(tabId, {
+      type: "modal:create",
+      payload: question,
+    });
     return;
   } catch (error) {
     const message = String(error?.message ?? "");
@@ -35,7 +86,10 @@ async function showModalInTab(tabId) {
       target: { tabId },
       files: ["contentScript.js"],
     });
-    await chrome.tabs.sendMessage(tabId, { type: "modal:create" });
+    await chrome.tabs.sendMessage(tabId, {
+      type: "modal:create",
+      payload: question,
+    });
   } catch (error) {
     const message = String(error?.message ?? "");
     if (
@@ -144,7 +198,7 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
       const endTimeMs = Date.now() + durationSeconds * 1000;
 
       await chrome.alarms.clear(TIMER_ALARM_NAME);
-      if (endTimeMs) {
+      if (durationSeconds > 0) {
         await chrome.alarms.create(TIMER_ALARM_NAME, { when: endTimeMs });
       }
 
@@ -157,11 +211,21 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
       };
 
       await setTimerState(nextState);
+      await clearActiveQuestion();
 
       const tabs = await chrome.tabs.query({});
       await Promise.all(tabs.map((tab) => removeModalInTab(tab.id)));
 
       sendResponse({ ok: true, state: nextState });
+      return;
+    }
+
+    if (message?.type === "storage:update") {
+      knowledgePool = normToArray(message?.payload?.knowledgeBase);
+      shuffled_questions = shuffleArray(
+        Array.from({ length: knowledgePool.length }, (_, i) => i),
+      );
+      sendResponse({ ok: true, knowledgeCount: knowledgePool.length });
       return;
     }
 
@@ -174,6 +238,11 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
 chrome.runtime.onInstalled.addListener(async () => {
   const state = await getTimerState();
   await setTimerState(state);
+  await ensureLoadKnowledgePool();
+});
+
+chrome.runtime.onStartup.addListener(async () => {
+  await ensureLoadKnowledgePool();
 });
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
@@ -193,15 +262,27 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   };
 
   await setTimerState(nextState);
+  await ensureLoadKnowledgePool();
 
+  if (knowledgePool.length === 0) return;
+  if (shuffled_questions.length === 0)
+    shuffled_questions = shuffleArray(
+      Array.from({ length: knowledgePool.length }, (_, i) => i),
+    );
+  const latestIndex = shuffled_questions.pop();
+  const latest = knowledgePool[latestIndex];
+  if (!latest) return;
+  await setActiveQuestion(latest);
   const tabs = await chrome.tabs.query({});
-  await Promise.all(tabs.map((tab) => showModalInTab(tab.id)));
+  await Promise.all(tabs.map((tab) => showModalInTab(tab.id, latest)));
 });
 
 async function showModalBasedOnState(tabId) {
   const state = await getTimerState();
   if (!state.expired) return;
-  await showModalInTab(tabId);
+  const question = await getActiveQuestion();
+  if (!question) return;
+  await showModalInTab(tabId, question);
 }
 
 chrome.tabs.onActivated.addListener(async ({ tabId }) => {

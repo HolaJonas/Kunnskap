@@ -1,4 +1,4 @@
-const MODAL_ROOT_ID = "kunnskap_modal";
+const MODAL_ROOT_ID = "kunnskapModal";
 
 function removeModal() {
   const existing = document.getElementById(MODAL_ROOT_ID);
@@ -9,7 +9,7 @@ async function setExited() {
   await chrome.runtime.sendMessage({ type: "modal:exited" });
 }
 
-function createModal() {
+function createModal(question) {
   if (document.getElementById(MODAL_ROOT_ID)) return;
 
   const overlay = document.createElement("div");
@@ -35,7 +35,7 @@ function createModal() {
   heading.style.fontSize = "1.25rem";
 
   const body = document.createElement("p");
-  body.textContent = "Question placeholder";
+  body.textContent = question.question;
   body.style.margin = "0 0 0.9rem 0";
 
   const exitButton = document.createElement("button");
@@ -57,6 +57,7 @@ function createModal() {
 }
 
 chrome.runtime.onMessage.addListener((message) => {
-  if (message?.type === "modal:create") createModal();
+  if (message?.type === "modal:create")
+    createModal(message?.payload ?? "No question available.");
   if (message?.type === "modal:remove") removeModal();
 });

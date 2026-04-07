@@ -1,5 +1,5 @@
 import "./App.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { KnowledgeCategory } from "./types/knowledgeCategory";
 import { EditMenu } from "./EditMenu";
 import { TimerMenu } from "./TimerMenu";
@@ -34,7 +34,7 @@ function App() {
       name: "test2",
       knowledgeBase: [
         {
-          question: parseLatex("Solve $1 + 1$"),
+          question: parseLatex("Solve $1 + 1 + 3$"),
           answer: parseLatex("$2$"),
           bidirectional: false,
           category: "Math",
@@ -42,6 +42,18 @@ function App() {
       ],
     },
   ]);
+
+  useEffect(() => {
+    const flattenedKnowledge = knowledgeBase.flatMap(
+      (category) => category.knowledgeBase,
+    );
+
+    chrome.storage.local.set({ knowledgeBase: flattenedKnowledge });
+    chrome.runtime.sendMessage({
+      type: "storage:update",
+      payload: { knowledgeBase: flattenedKnowledge },
+    });
+  }, [knowledgeBase]);
 
   function handleDeleteEntries(indicesToDelete: number[]) {
     setKnowledgeBase((prev) => {
