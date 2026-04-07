@@ -82,9 +82,13 @@ async function showModalInTab(tabId, question) {
   }
 
   try {
+    await chrome.scripting.insertCSS({
+      target: { tabId },
+      files: ["katex/katex.min.css"],
+    });
     await chrome.scripting.executeScript({
       target: { tabId },
-      files: ["contentScript.js"],
+      files: ["katex/katex.min.js", "contentScript.js"],
     });
     await chrome.tabs.sendMessage(tabId, {
       type: "modal:create",

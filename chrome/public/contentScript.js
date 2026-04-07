@@ -1,5 +1,17 @@
 const MODAL_ROOT_ID = "kunnskapModal";
 
+function getQuestionText(question) {
+  if (typeof question === "string") return question;
+  if (question && typeof question.question === "string")
+    return question.question;
+  return "No question available.";
+}
+
+function renderQuestion(el, text) {
+  const katexApi = window.katex;
+  katexApi.render(text, el, { throwOnError: false, strict: "warn" });
+}
+
 function removeModal() {
   const existing = document.getElementById(MODAL_ROOT_ID);
   if (existing) existing.remove();
@@ -35,7 +47,7 @@ function createModal(question) {
   heading.style.fontSize = "1.25rem";
 
   const body = document.createElement("p");
-  body.textContent = question.question;
+  renderQuestion(body, getQuestionText(question));
   body.style.margin = "0 0 0.9rem 0";
 
   const exitButton = document.createElement("button");
