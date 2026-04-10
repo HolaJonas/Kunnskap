@@ -48,12 +48,17 @@ function App() {
       (category) => category.knowledgeBase,
     );
 
-    chrome.storage.local.set({ knowledgeBase: flattenedKnowledge });
     chrome.runtime.sendMessage({
       type: "storage:update",
-      payload: { knowledgeBase: flattenedKnowledge },
+      payload: { knowledgeBase: knowledgeBase, flatten: flattenedKnowledge },
     });
   }, [knowledgeBase]);
+
+  useEffect(() => {
+    chrome.storage.local.get("knowledgeBase").then((result) => {
+      setKnowledgeBase(result.knowledgeBase as KnowledgeCategory[]);
+    });
+  }, []);
 
   function handleDeleteEntries(indicesToDelete: number[]) {
     setKnowledgeBase((prev) => {

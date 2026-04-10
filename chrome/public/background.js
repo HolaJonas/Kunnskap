@@ -231,10 +231,13 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     }
 
     if (message?.type === "storage:update") {
-      knowledgePool = normToArray(message?.payload?.knowledgeBase);
+      knowledgePool = normToArray(message?.payload?.flatten);
       shuffled_questions = shuffleArray(
         Array.from({ length: knowledgePool.length }, (_, i) => i),
       );
+      await chrome.storage.local.set({
+        [KNOWLEDGE_STORAGE_KEY]: message?.payload?.knowledgeBase,
+      });
       sendResponse({ ok: true, knowledgeCount: knowledgePool.length });
       return;
     }
