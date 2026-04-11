@@ -4,44 +4,8 @@ import { KnowledgeCategory } from "./types/knowledgeCategory";
 import { EditMenu } from "./EditMenu";
 import { TimerMenu } from "./TimerMenu";
 
-function parseLatex(str: string) {
-  return str
-    .split("$")
-    .map((segment, index) => (index % 2 === 0 ? `\\text{${segment}}` : segment))
-    .join("");
-}
-
 function App() {
-  let [knowledgeBase, setKnowledgeBase] = useState<KnowledgeCategory[]>([
-    {
-      name: "test",
-      knowledgeBase: [
-        {
-          question: parseLatex("Solve $1 + 1$"),
-          answer: parseLatex("$2$"),
-          bidirectional: false,
-          category: "Math",
-        },
-        {
-          question: parseLatex("Solve $2 + 2$"),
-          answer: parseLatex("$4$"),
-          bidirectional: false,
-          category: "Math",
-        },
-      ],
-    },
-    {
-      name: "test2",
-      knowledgeBase: [
-        {
-          question: parseLatex("Solve $1 + 1 + 3$"),
-          answer: parseLatex("$2$"),
-          bidirectional: false,
-          category: "Math",
-        },
-      ],
-    },
-  ]);
+  let [knowledgeBase, setKnowledgeBase] = useState<KnowledgeCategory[]>([]);
 
   useEffect(() => {
     const flattenedKnowledge = knowledgeBase.flatMap(

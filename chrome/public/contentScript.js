@@ -1,12 +1,5 @@
 const MODAL_ROOT_ID = "kunnskapModal";
 
-function getQuestionText(question) {
-  if (typeof question === "string") return question;
-  if (question && typeof question.question === "string")
-    return question.question;
-  return "No question available.";
-}
-
 function renderQuestion(el, text) {
   const katexApi = window.katex;
   katexApi.render(text, el, { throwOnError: false, strict: "warn" });
@@ -47,7 +40,7 @@ function createModal(question) {
   heading.style.fontSize = "1.25rem";
 
   const body = document.createElement("p");
-  renderQuestion(body, getQuestionText(question));
+  renderQuestion(body, question.question);
   body.style.margin = "0 0 0.9rem 0";
 
   const exitButton = document.createElement("button");
@@ -69,7 +62,6 @@ function createModal(question) {
 }
 
 chrome.runtime.onMessage.addListener((message) => {
-  if (message?.type === "modal:create")
-    createModal(message?.payload ?? "No question available.");
+  if (message?.type === "modal:create") createModal(message?.payload);
   if (message?.type === "modal:remove") removeModal();
 });

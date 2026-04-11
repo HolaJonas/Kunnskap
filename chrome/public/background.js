@@ -10,6 +10,13 @@ const defaultTimerState = {
   expired: false,
 };
 
+const fallbackQuestion = {
+  question: "\\text{No question available.}",
+  answer: null,
+  bidirectional: false,
+  category: "fallback",
+};
+
 let shuffled_questions = [];
 let knowledgePool = [];
 let activeQuestion = null;
@@ -277,14 +284,13 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   await setTimerState(nextState);
   await ensureLoadKnowledgePool();
 
-  if (knowledgePool.length === 0) return;
-  if (shuffled_questions.length === 0)
+  if (shuffled_questions.length === 0 && knowledgePool.length !== 0)
     shuffled_questions = shuffleArray(
       Array.from({ length: knowledgePool.length }, (_, i) => i),
     );
   const latestIndex = shuffled_questions.pop();
-  const latest = knowledgePool[latestIndex];
-  if (!latest) return;
+  let latest = fallbackQuestion;
+  if (latestIndex !== undefined) latest = knowledgePool[latestIndex];
   await setActiveQuestion(latest);
   const tabs = await chrome.tabs.query({});
   await Promise.all(tabs.map((tab) => showModalInTab(tab.id, latest)));
@@ -309,3 +315,48 @@ chrome.tabs.onCreated.addListener(async (tab) => {
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
   if (changeInfo.status === "complete") await showModalBasedOnState(tabId);
 });
+
+//** Temporary testing env */
+
+function parseLatex(str) {
+  return str
+    .split("$")
+    .map((segment, index) => (index % 2 === 0 ? `\\text{${segment}}` : segment))
+    .join("");
+}
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.storage.local.set({
+    knowledgeBase: [
+      {
+        name: "test",
+        knowledgeBase: [
+          {
+            question: parseLatex("Solve $1 + 1$"),
+            answer: parseLatex("$2$"),
+            bidirectional: false,
+            category: "Math",
+          },
+          {
+            question: parseLatex("Solve $2 + 2$"),
+            answer: parseLatex("$4$"),
+            bidirectional: false,
+            category: "Math",
+          },
+        ],
+      },
+      {
+        name: "test2",
+        knowledgeBase: [
+          {
+            question: parseLatex("Solve $1 + 1 + 3$"),
+            answer: parseLatex("$2$"),
+            bidirectional: false,
+            category: "Math",
+          },
+        ],
+      },
+    ],
+  });
+});
+/** */
