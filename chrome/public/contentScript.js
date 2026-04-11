@@ -1,4 +1,7 @@
 const MODAL_ROOT_ID = "kunnskapModal";
+const PAUSE_STATE_KEY = "kunnskapPauseState";
+
+let pauseState = null;
 
 function renderQuestion(el, text) {
   const katexApi = window.katex;
@@ -8,6 +11,7 @@ function renderQuestion(el, text) {
 function removeModal() {
   const existing = document.getElementById(MODAL_ROOT_ID);
   if (existing) existing.remove();
+  resumeBackground();
 }
 
 async function setExited() {
@@ -16,6 +20,8 @@ async function setExited() {
 
 function createModal(question) {
   if (document.getElementById(MODAL_ROOT_ID)) return;
+
+  pauseBackground();
 
   const overlay = document.createElement("div");
   overlay.id = MODAL_ROOT_ID;
@@ -59,6 +65,73 @@ function createModal(question) {
   background.appendChild(exitButton);
   overlay.appendChild(background);
   document.body.appendChild(overlay);
+}
+
+function pauseBackground() {
+  const html = document.documentElement;
+  const body = document.body;
+
+  const pausedMedia = [];
+  const pauseMedia = () => {
+    document.querySelectorAll("video, audio").forEach((e) => {
+      try {
+        if (!e.paused && !e.ended) {
+          pausedMedia.push(e);
+          e.pause();
+        }
+      } catch (error) {}
+    });
+  };
+
+  const playListener = (event) => {
+    const target = event?.target;
+    try {
+      target.pause();
+    } catch (error) {}
+  };
+
+  pauseMedia();
+  document.addEventListener("play", playListener, true);
+  const mediaPauseIntervalId = window.setInterval(pauseMedia, 0);
+
+  pauseState = {
+    htmlAnimationPlayState: html.style.animationPlayState,
+    htmlTransitionPlayState: html.style.transitionPlayState,
+    bodyAnimationPlayState: body.style.animationPlayState,
+    bodyTransitionPlayState: body.style.transitionPlayState,
+    bodyOverflow: body.style.overflow,
+    pausedMedia,
+    mediaPauseIntervalId,
+    playListener,
+  };
+
+  html.style.animationPlayState = "paused";
+  html.style.transitionPlayState = "paused";
+  body.style.animationPlayState = "paused";
+  body.style.transitionPlayState = "paused";
+  body.style.overflow = "hidden";
+}
+
+function resumeBackground() {
+  const html = document.documentElement;
+  const body = document.body;
+
+  html.style.animationPlayState = pauseState.htmlAnimationPlayState;
+  html.style.transitionPlayState = pauseState.htmlTransitionPlayState;
+  body.style.animationPlayState = pauseState.bodyAnimationPlayState;
+  body.style.transitionPlayState = pauseState.bodyTransitionPlayState;
+  body.style.overflow = pauseState.bodyOverflow;
+
+  window.clearInterval(pauseState.mediaPauseIntervalId);
+  document.removeEventListener("play", pauseState.playListener, true);
+
+  pauseState.pausedMedia.forEach((e) => {
+    try {
+      e.play();
+    } catch (error) {}
+  });
+
+  pauseState = null;
 }
 
 chrome.runtime.onMessage.addListener((message) => {
