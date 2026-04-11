@@ -5,6 +5,7 @@ import { KnowledgeCategoryList } from "./KnowledgeCategoryList";
 interface EditMenuProps {
   knowledgeBase: KnowledgeCategory[];
   onDelete: (indices: number[]) => void;
+  onToggleActive: (index: number) => void;
 }
 
 function EditMenu(props: EditMenuProps) {
@@ -43,6 +44,7 @@ function EditMenu(props: EditMenuProps) {
             knowledgeBase={props.knowledgeBase}
             onSelect={handleSelection}
             selected={(idx) => selectedKnowledge.includes(idx)}
+            onToggleActive={props.onToggleActive}
           />
         </div>
       )}

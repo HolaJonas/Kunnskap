@@ -42,11 +42,33 @@ function App() {
     });
   }
 
+  function handleToggleActive(indexToToggle: number) {
+    setKnowledgeBase((prev) => {
+      let flatIndex = 0;
+
+      return prev.map((category) => ({
+        ...category,
+        knowledgeBase: category.knowledgeBase.map((knowledge) => {
+          const next =
+            flatIndex === indexToToggle
+              ? { ...knowledge, active: !knowledge.active }
+              : knowledge;
+          flatIndex += 1;
+          return next;
+        }),
+      }));
+    });
+  }
+
   return (
     <div className="flex-row space-y-2 w-60">
       <h1 className="pl-5">Kunnskap</h1>
       <TimerMenu />
-      <EditMenu knowledgeBase={knowledgeBase} onDelete={handleDeleteEntries} />
+      <EditMenu
+        knowledgeBase={knowledgeBase}
+        onDelete={handleDeleteEntries}
+        onToggleActive={handleToggleActive}
+      />
     </div>
   );
 }

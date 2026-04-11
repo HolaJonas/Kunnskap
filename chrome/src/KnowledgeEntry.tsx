@@ -5,6 +5,7 @@ interface KnowledgeEntryProps {
   knowledge: Knowledge;
   onSelect: () => void;
   selected: boolean;
+  onToggleActive: () => void;
 }
 
 function KnowledgeEntry(props: KnowledgeEntryProps) {
@@ -28,6 +29,15 @@ function KnowledgeEntry(props: KnowledgeEntryProps) {
             <InlineMath math={props.knowledge.answer} />
           </div>
         </div>
+        <input
+          type="checkbox"
+          checked={props.knowledge.active}
+          onChange={(event) => {
+            event.stopPropagation();
+            props.onToggleActive();
+          }}
+          onClick={(event) => event.stopPropagation()}
+        />
       </div>
     </div>
   );

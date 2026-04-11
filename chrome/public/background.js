@@ -15,14 +15,16 @@ const fallbackQuestion = {
   answer: null,
   bidirectional: false,
   category: "fallback",
+  active: true,
 };
 
 let shuffled_questions = [];
 let knowledgePool = [];
 let activeQuestion = null;
 
-function shuffleArray(arr) {
+function shuffleFilterArray(arr, pool) {
   return arr
+    .filter((val) => pool[val].active)
     .map((val) => ({ val, sort: Math.random() }))
     .sort((a, b) => a.sort - b.sort)
     .map(({ val }) => val);
@@ -50,8 +52,9 @@ async function ensureLoadKnowledgePool() {
   if (knowledgePool.length > 0) return;
   knowledgePool = await readKnowledgePoolFromStorage();
   if (shuffled_questions.length === 0 && knowledgePool.length > 0) {
-    shuffled_questions = shuffleArray(
+    shuffled_questions = shuffleFilterArray(
       Array.from({ length: knowledgePool.length }, (_, i) => i),
+      knowledgePool,
     );
   }
 }
@@ -239,8 +242,9 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
 
     if (message?.type === "storage:update") {
       knowledgePool = normToArray(message?.payload?.flatten);
-      shuffled_questions = shuffleArray(
+      shuffled_questions = shuffleFilterArray(
         Array.from({ length: knowledgePool.length }, (_, i) => i),
+        knowledgePool,
       );
       await chrome.storage.local.set({
         [KNOWLEDGE_STORAGE_KEY]: message?.payload?.knowledgeBase,
@@ -285,8 +289,9 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   await ensureLoadKnowledgePool();
 
   if (shuffled_questions.length === 0 && knowledgePool.length !== 0)
-    shuffled_questions = shuffleArray(
+    shuffled_questions = shuffleFilterArray(
       Array.from({ length: knowledgePool.length }, (_, i) => i),
+      knowledgePool,
     );
   const latestIndex = shuffled_questions.pop();
   let latest = fallbackQuestion;
@@ -336,12 +341,14 @@ chrome.runtime.onInstalled.addListener(() => {
             answer: parseLatex("$2$"),
             bidirectional: false,
             category: "Math",
+            active: true,
           },
           {
             question: parseLatex("Solve $2 + 2$"),
             answer: parseLatex("$4$"),
             bidirectional: false,
             category: "Math",
+            active: true,
           },
         ],
       },
@@ -353,6 +360,7 @@ chrome.runtime.onInstalled.addListener(() => {
             answer: parseLatex("$2$"),
             bidirectional: false,
             category: "Math",
+            active: true,
           },
         ],
       },

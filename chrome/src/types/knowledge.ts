@@ -3,4 +3,5 @@ export type Knowledge = {
   answer: string;
   bidirectional: boolean;
   category: string;
+  active: boolean;
 };

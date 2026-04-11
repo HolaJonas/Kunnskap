@@ -5,6 +5,7 @@ interface KnowledgeCategoryListProps {
   knowledgeBase: KnowledgeCategory[];
   onSelect: (index: number) => void;
   selected: (index: number) => boolean;
+  onToggleActive: (index: number) => void;
 }
 
 function KnowledgeCategoryList(props: KnowledgeCategoryListProps) {
@@ -22,6 +23,9 @@ function KnowledgeCategoryList(props: KnowledgeCategoryListProps) {
               knowledgeBase={category.knowledgeBase}
               onSelect={(idx) => props.onSelect(categoryStartIndex + idx)}
               selected={(idx) => props.selected(categoryStartIndex + idx)}
+              onToggleActive={(idx) =>
+                props.onToggleActive(categoryStartIndex + idx)
+              }
               name={category.name}
             />
           </li>

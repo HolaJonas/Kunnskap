@@ -6,6 +6,7 @@ interface KnowledgeListProps {
   knowledgeBase: Knowledge[];
   onSelect: (index: number) => void;
   selected: (index: number) => boolean;
+  onToggleActive: (index: number) => void;
   name: string;
 }
 
@@ -34,6 +35,7 @@ function KnowledgeList(props: KnowledgeListProps) {
                     knowledge={knowledge}
                     onSelect={() => props.onSelect(index)}
                     selected={props.selected(index)}
+                    onToggleActive={() => props.onToggleActive(index)}
                   />
                 </li>
               ))}
