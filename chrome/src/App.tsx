@@ -6,7 +6,6 @@ import { TimerMenu } from "./TimerMenu";
 
 function App() {
   let [knowledgeBase, setKnowledgeBase] = useState<KnowledgeCategory[]>([]);
-
   useEffect(() => {
     const flattenedKnowledge = knowledgeBase.flatMap(
       (category) => category.knowledgeBase,
@@ -61,14 +60,16 @@ function App() {
   }
 
   return (
-    <div className="flex-row space-y-2 w-60">
-      <h1 className="pl-5">Kunnskap</h1>
-      <TimerMenu />
-      <EditMenu
-        knowledgeBase={knowledgeBase}
-        onDelete={handleDeleteEntries}
-        onToggleActive={handleToggleActive}
-      />
+    <div className="w-64 space-y-2 border border-tropic-green/20 bg-tropic-eggwhite p-3 shadow-sm select-none">
+      <h1 className="pl-1 text-lg font-bold text-tropic-green">Kunnskap</h1>
+      <section className="space-y-2 rounded-xl border border-tropic-green/25 bg-white p-3">
+        <TimerMenu />
+        <EditMenu
+          knowledgeBase={knowledgeBase}
+          onDelete={handleDeleteEntries}
+          onToggleActive={handleToggleActive}
+        />
+      </section>
     </div>
   );
 }

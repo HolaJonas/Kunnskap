@@ -1,12 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface TimerSettingsProps {
   setPeriod: (period: number) => void;
-  hide: boolean;
+  periodSeconds: number;
+}
+
+function splitSeconds(totalSeconds: number) {
+  const safeTotal = Math.max(Math.floor(totalSeconds), 0);
+  const hours = Math.floor(safeTotal / 3600);
+  const minutes = Math.floor((safeTotal % 3600) / 60);
+  const seconds = safeTotal % 60;
+  return { hours, minutes, seconds };
 }
 
 function TimerSettings(props: TimerSettingsProps) {
-  let [time, setTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
+  let [time, setTime] = useState(() => splitSeconds(props.periodSeconds));
+
+  useEffect(() => {
+    setTime(splitSeconds(props.periodSeconds));
+  }, [props.periodSeconds]);
 
   function getSeconds() {
     return time.hours * 3600 + time.minutes * 60 + time.seconds;
@@ -19,12 +31,15 @@ function TimerSettings(props: TimerSettingsProps) {
 
   return (
     <>
-      {!props.hide && (
-        <div className="mt-2 grid w-full max-w-full grid-cols-1 gap-2 sm:grid-cols-3">
+      <div className="grid w-full max-w-full grid-cols-3 gap-2">
+        <label className="flex min-w-0 flex-col gap-1 text-left">
+          <span className="text-xs text-tropic-green/80">Hours</span>
           <input
-            className="w-full min-w-0 rounded border border-slate-300 px-2 py-1"
+            type="number"
+            inputMode="numeric"
+            min={0}
+            className="w-full min-w-0 rounded-md border border-tropic-green/25 bg-white px-2 py-1 text-sm text-tropic-green outline-none focus:border-tropic-orange"
             value={time.hours}
-            placeholder="Hours"
             onBlur={() => props.setPeriod(getSeconds())}
             onChange={(e) =>
               setTime({
@@ -33,10 +48,15 @@ function TimerSettings(props: TimerSettingsProps) {
               })
             }
           />
+        </label>
+        <label className="flex min-w-0 flex-col gap-1 text-left">
+          <span className="text-xs text-tropic-green/80">Minutes</span>
           <input
-            className="w-full min-w-0 rounded border border-slate-300 px-2 py-1"
+            type="number"
+            inputMode="numeric"
+            min={0}
+            className="w-full min-w-0 rounded-md border border-tropic-green/25 bg-white px-2 py-1 text-sm text-tropic-green outline-none focus:border-tropic-orange"
             value={time.minutes}
-            placeholder="Minutes"
             onBlur={() => props.setPeriod(getSeconds())}
             onChange={(e) =>
               setTime({
@@ -45,10 +65,15 @@ function TimerSettings(props: TimerSettingsProps) {
               })
             }
           />
+        </label>
+        <label className="flex min-w-0 flex-col gap-1 text-left">
+          <span className="text-xs text-tropic-green/80">Seconds</span>
           <input
-            className="w-full min-w-0 rounded border border-slate-300 px-2 py-1"
+            type="number"
+            inputMode="numeric"
+            min={0}
+            className="w-full min-w-0 rounded-md border border-tropic-green/25 bg-white px-2 py-1 text-sm text-tropic-green outline-none focus:border-tropic-orange"
             value={time.seconds}
-            placeholder="Seconds"
             onBlur={() => props.setPeriod(getSeconds())}
             onChange={(e) =>
               setTime({
@@ -57,8 +82,8 @@ function TimerSettings(props: TimerSettingsProps) {
               })
             }
           />
-        </div>
-      )}
+        </label>
+      </div>
     </>
   );
 }

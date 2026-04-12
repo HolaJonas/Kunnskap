@@ -12,13 +12,13 @@ function KnowledgeCategoryList(props: KnowledgeCategoryListProps) {
   let runningOffset = 0;
 
   return (
-    <ul>
+    <ul className="divide-y divide divide-tropic-green/15">
       {props.knowledgeBase.map((category, categoryIndex) => {
         const categoryStartIndex = runningOffset;
         runningOffset += category.knowledgeBase.length;
 
         return (
-          <li key={`${category.name}-${categoryIndex}`}>
+          <li key={`${category.name}-${categoryIndex}`} className="pb-2">
             <KnowledgeList
               knowledgeBase={category.knowledgeBase}
               onSelect={(idx) => props.onSelect(categoryStartIndex + idx)}

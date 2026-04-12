@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+@theme {
+  --color-tropic-eggwhite: #f8f6e3;
+  --color-tropic-red: #e12729;
+  --color-tropic-orange: #f37324;
+  --color-tropic-yellow: #f8cc1b;
+  --color-tropic-lime: #72b043;
+  --color-tropic-green: #007f4e;
+}

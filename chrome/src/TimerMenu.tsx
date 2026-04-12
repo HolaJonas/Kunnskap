@@ -153,17 +153,31 @@ function TimerMenu() {
   }
 
   return (
-    <section className="flex w-full flex-col items-center justify-center rounded-xl border-2 border-slate-300 p-2 text-center space-y-2">
-      <TimerVisual
-        toggleIsRunning={toggleRunning}
-        time={timeRemaining}
-        progress={progress}
-        disabled={isModalShowing}
-      />
-      <button onClick={() => setShowTimerSettings(!showTimerSettings)}>
-        Edit Timer
+    <section className="flex w-full flex-col gap-3">
+      <button
+        className="flex w-full rounded items-center justify-between px-3 py-1 text-left text-sm font-medium text-tropic-green transition-colors hover:bg-tropic-lime/15"
+        onClick={() => setShowTimerSettings(!showTimerSettings)}
+      >
+        <span>Timer Editor</span>
+        <span
+          className={`text-xs transition-transform ${showTimerSettings ? "rotate-180" : "rotate-0"}`}
+        >
+          ▼
+        </span>
       </button>
-      <TimerSettings setPeriod={applyPeriod} hide={!showTimerSettings} />
+      {showTimerSettings && (
+        <section className="justify-center flex w-full flex-col gap-3 rounded-lg border border-tropic-green/25 bg-tropic-eggwhite/65 p-3 text-center">
+          <div className="flex justify-center">
+            <TimerVisual
+              toggleIsRunning={toggleRunning}
+              time={timeRemaining}
+              progress={progress}
+              disabled={isModalShowing}
+            />
+          </div>
+          <TimerSettings setPeriod={applyPeriod} periodSeconds={period} />
+        </section>
+      )}
     </section>
   );
 }

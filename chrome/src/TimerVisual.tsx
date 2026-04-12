@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useEffect, type CSSProperties } from "react";
 import "./App.css";
 
 interface TimerVisualProps {
@@ -25,17 +25,19 @@ function TimerVisual(props: TimerVisualProps) {
 
   return (
     <div
-      className="timer-ring rounded-full w-20 h-20 justify-center flex items-center"
+      className="timer-ring rounded-full w-20 h-20 justify-center flex items-center shadow-sm"
       style={{ "--progress": clampedProgress } as CSSProperties}
     >
       <div
-        className={`bg-white rounded-full w-16 h-16 flex items-center justify-center ${props.disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+        className={`flex h-16 w-16 items-center justify-center rounded-full border border-tropic-green/15 bg-white ${props.disabled ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}
         onClick={() => {
           if (props.disabled) return;
           props.toggleIsRunning();
         }}
       >
-        <div className="text-center">{convertSecondsToHMS(props.time)}</div>
+        <div className="text-center text-xs font-semibold text-tropic-green">
+          {convertSecondsToHMS(props.time)}
+        </div>
       </div>
     </div>
   );

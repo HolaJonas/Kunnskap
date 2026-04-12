@@ -9,7 +9,7 @@ interface EditMenuProps {
 }
 
 function EditMenu(props: EditMenuProps) {
-  let [showKnowledgeList, setShowKnowledgeList] = useState(false);
+  let [showKnowledgeMenu, setShowKnowledgeMenu] = useState(false);
   let [selectedKnowledge, setSelectedKnowledge] = useState<number[]>([]);
 
   function handleSelection(idx: number) {
@@ -19,34 +19,42 @@ function EditMenu(props: EditMenuProps) {
   }
 
   return (
-    <section className="flex w-full flex-col justify-center rounded-xl border-2 border-slate-300 p-2">
+    <section className="flex w-full flex-col gap-3 border-t border-tropic-green/15 pt-2">
       <button
-        className="w-auto h-auto p-2"
-        onClick={() => setShowKnowledgeList(!showKnowledgeList)}
+        className="flex w-full rounded items-center justify-between px-3 py-1 text-left text-sm font-medium text-tropic-green transition-colors hover:bg-tropic-lime/15"
+        onClick={() => setShowKnowledgeMenu(!showKnowledgeMenu)}
       >
-        Edit Knowledge
+        <span>Knowledge Editor</span>
+        <span
+          className={`text-xs transition-transform ${showKnowledgeMenu ? "rotate-180" : "rotate-0"}`}
+        >
+          ▼
+        </span>
       </button>
-      {showKnowledgeList && (
-        <div>
-          <div className="justify-evenly gap-0 flex">
-            {`${selectedKnowledge.length} entries selected`}
-            <button
-              className="bg-red-400 p-0.5 rounded text-white"
-              onClick={() => {
-                props.onDelete(selectedKnowledge);
-                setSelectedKnowledge([]);
-              }}
-            >
-              Delete selected
-            </button>
+      {showKnowledgeMenu && (
+        <section className="flex w-full flex-col justify-center rounded-lg border border-tropic-green/25 bg-tropic-eggwhite/65 p-3">
+          <div className="mt-2 space-y-2">
+            <div className="flex items-center justify-between gap-2 text-xs text-tropic-green/80">
+              {`${selectedKnowledge.length} entries selected`}
+              <button
+                className="rounded-md border border-tropic-orange/45 bg-tropic-orange px-2.5 py-1 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-tropic-orange/90 focus:outline-none focus:ring-2 focus:ring-tropic-orange/40 disabled:cursor-not-allowed disabled:border-tropic-orange/20 disabled:bg-tropic-orange/40"
+                disabled={selectedKnowledge.length === 0}
+                onClick={() => {
+                  props.onDelete(selectedKnowledge);
+                  setSelectedKnowledge([]);
+                }}
+              >
+                Delete Selected
+              </button>
+            </div>
+            <KnowledgeCategoryList
+              knowledgeBase={props.knowledgeBase}
+              onSelect={handleSelection}
+              selected={(idx) => selectedKnowledge.includes(idx)}
+              onToggleActive={props.onToggleActive}
+            />
           </div>
-          <KnowledgeCategoryList
-            knowledgeBase={props.knowledgeBase}
-            onSelect={handleSelection}
-            selected={(idx) => selectedKnowledge.includes(idx)}
-            onToggleActive={props.onToggleActive}
-          />
-        </div>
+        </section>
       )}
     </section>
   );

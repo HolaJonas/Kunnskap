@@ -15,16 +15,24 @@ function KnowledgeList(props: KnowledgeListProps) {
 
   return (
     <>
-      <h3
-        className="mt-3text-slate-500"
-        onClick={() => setShowKnowledgeList(!showKnowledgeList)}
+      <button
+        type="button"
+        className="mt-3 flex w-full items-center justify-between rounded px-2 py-1 text-left text-sm font-semibold text-tropic-green transition-colors hover:bg-tropic-lime/15"
+        onClick={() => setShowKnowledgeList((prev) => !prev)}
       >
-        {props.name}
-      </h3>
+        <span>{props.name}</span>
+        <span
+          className={`text-xs transition-transform ${showKnowledgeList ? "rotate-180" : "rotate-0"}`}
+        >
+          ▼
+        </span>
+      </button>
       {showKnowledgeList && (
-        <section className="mt-3 w-full max-h-80 overflow-y-auto rounded-md border border-slate-300 bg-slate-50 p-3">
+        <section className="mt-2 max-h-80 w-full overflow-y-auto">
           {props.knowledgeBase.length === 0 ? (
-            <p className="text-sm text-slate-600">No stored knowledge yet.</p>
+            <p className="text-sm text-tropic-green/70">
+              No stored knowledge yet.
+            </p>
           ) : (
             <ul className="space-y-3">
               {props.knowledgeBase.map((knowledge, index) => (
