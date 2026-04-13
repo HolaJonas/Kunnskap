@@ -7,6 +7,8 @@ interface KnowledgeListProps {
   onSelect: (index: number) => void;
   selected: (index: number) => boolean;
   onToggleActive: (index: number) => void;
+  onSelectCategory: () => void;
+  selectedCategory: boolean;
   name: string;
 }
 
@@ -15,18 +17,30 @@ function KnowledgeList(props: KnowledgeListProps) {
 
   return (
     <>
-      <button
-        type="button"
-        className="mt-3 flex w-full items-center justify-between rounded px-2 py-1 text-left text-sm font-semibold text-tropic-green transition-colors hover:bg-tropic-lime/15"
-        onClick={() => setShowKnowledgeList((prev) => !prev)}
-      >
-        <span>{props.name}</span>
-        <span
-          className={`text-xs transition-transform ${showKnowledgeList ? "rotate-180" : "rotate-0"}`}
+      <div className="mt-3 flex w-full items-center gap-1">
+        <button
+          type="button"
+          className={`flex-1 rounded px-2 py-1 text-left text-sm font-semibold transition-colors ${
+            props.selectedCategory
+              ? "border border-tropic-lime bg-tropic-lime/20 text-tropic-green"
+              : "text-tropic-green hover:bg-tropic-orange/10"
+          }`}
+          onClick={props.onSelectCategory}
         >
-          ▼
-        </span>
-      </button>
+          {props.name}
+        </button>
+        <button
+          type="button"
+          className="rounded px-2 py-1 text-left text-sm font-semibold text-tropic-green transition-colors hover:bg-tropic-lime/15"
+          onClick={() => setShowKnowledgeList((prev) => !prev)}
+        >
+          <span
+            className={`text-xs transition-transform ${showKnowledgeList ? "rotate-180" : "rotate-0"}`}
+          >
+            ▼
+          </span>
+        </button>
+      </div>
       {showKnowledgeList && (
         <section className="mt-2 max-h-80 w-full overflow-y-auto">
           {props.knowledgeBase.length === 0 ? (

@@ -31,16 +31,21 @@ function App() {
       const toDelete = new Set(indicesToDelete);
       let flatIndex = 0;
 
-      return prev
-        .map((category) => ({
-          ...category,
-          knowledgeBase: category.knowledgeBase.filter(() => {
-            const keep = !toDelete.has(flatIndex);
-            flatIndex += 1;
-            return keep;
-          }),
-        }))
-        .filter((category) => category.knowledgeBase.length > 0);
+      return prev.map((category) => ({
+        ...category,
+        knowledgeBase: category.knowledgeBase.filter(() => {
+          const keep = !toDelete.has(flatIndex);
+          flatIndex += 1;
+          return keep;
+        }),
+      }));
+    });
+  }
+
+  function handleDeleteCategories(categoryIndicesToDelete: number[]) {
+    setKnowledgeBase((prev) => {
+      const toDelete = new Set(categoryIndicesToDelete);
+      return prev.filter((_, index) => !toDelete.has(index));
     });
   }
 
@@ -69,8 +74,10 @@ function App() {
         <TimerMenu />
         <EditMenu
           knowledgeBase={knowledgeBase}
-          onDelete={handleDeleteEntries}
+          onDeleteEntries={handleDeleteEntries}
+          onDeleteCategories={handleDeleteCategories}
           onToggleActive={handleToggleActive}
+          setKnowledgeBase={setKnowledgeBase}
         />
       </section>
     </div>

@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { KnowledgeList } from "./KnowledgeList";
 import { KnowledgeCategory } from "./types/knowledgeCategory";
 
@@ -5,11 +6,38 @@ interface KnowledgeCategoryListProps {
   knowledgeBase: KnowledgeCategory[];
   onSelect: (index: number) => void;
   selected: (index: number) => boolean;
+  onSelectCategory: (index: number) => void;
+  selectedCategory: (index: number) => boolean;
   onToggleActive: (index: number) => void;
+  setKnowledgeBase: (knowledgeBase: KnowledgeCategory[]) => void;
 }
 
 function KnowledgeCategoryList(props: KnowledgeCategoryListProps) {
+  let [creatingNew, setCreatingNew] = useState(false);
+  let [proposedName, setProposedName] = useState("");
   let runningOffset = 0;
+  const createNewInputFocus = useRef<HTMLInputElement | null>(null);
+  const normalizedProposedName = proposedName.trim();
+  const duplicateName =
+    normalizedProposedName.length > 0 && nameExists(normalizedProposedName);
+
+  function nameExists(text: string) {
+    const normalizedName = text.trim().toLowerCase();
+    return props.knowledgeBase.some(
+      (category) => category.name.trim().toLowerCase() === normalizedName,
+    );
+  }
+
+  function resetInput() {
+    setCreatingNew(false);
+    setProposedName("");
+  }
+
+  useEffect(() => {
+    if (creatingNew) {
+      createNewInputFocus.current?.focus();
+    }
+  }, [creatingNew]);
 
   return (
     <ul className="divide-y divide divide-tropic-green/15">
@@ -26,11 +54,51 @@ function KnowledgeCategoryList(props: KnowledgeCategoryListProps) {
               onToggleActive={(idx) =>
                 props.onToggleActive(categoryStartIndex + idx)
               }
+              onSelectCategory={() => props.onSelectCategory(categoryIndex)}
+              selectedCategory={props.selectedCategory(categoryIndex)}
               name={category.name}
             />
           </li>
         );
       })}
+      {!creatingNew && (
+        <button
+          type="button"
+          className="mt-3 flex w-full items-center justify-between rounded px-2 py-1 text-left text-sm font-semibold text-tropic-green transition-colors hover:bg-tropic-lime/15 border-2 border-dashed border-tropic-green/15"
+          onClick={() => setCreatingNew(true)}
+        >
+          <span>+</span>
+        </button>
+      )}
+      {creatingNew && (
+        <div className="relative mt-3">
+          {duplicateName && (
+            <span className="absolute -top-2 right-2 rounded bg-tropic-red px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white">
+              Already exists
+            </span>
+          )}
+          <input
+            ref={createNewInputFocus}
+            value={proposedName}
+            onChange={(e) => setProposedName(e.target.value)}
+            className={`flex w-full items-center justify-between rounded border px-2 py-1 text-left text-sm font-semibold text-tropic-green transition-colors hover:bg-tropic-lime/15 focus:outline-none ${
+              duplicateName
+                ? "border-tropic-red focus:ring-2 focus:ring-tropic-red/30"
+                : "border-tropic-green/20 focus:ring-2 focus:ring-tropic-green/20"
+            }`}
+            onBlur={resetInput}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !duplicateName) {
+                props.setKnowledgeBase([
+                  ...props.knowledgeBase,
+                  { name: normalizedProposedName, knowledgeBase: [] },
+                ]);
+                resetInput();
+              }
+            }}
+          />
+        </div>
+      )}
     </ul>
   );
 }

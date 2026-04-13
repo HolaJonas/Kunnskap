@@ -5,7 +5,9 @@ import { SHOW_KNOWLEDGE_MENU_STORAGE_KEY } from "./storageKeys";
 
 interface EditMenuProps {
   knowledgeBase: KnowledgeCategory[];
-  onDelete: (indices: number[]) => void;
+  setKnowledgeBase: (knowledgeBase: KnowledgeCategory[]) => void;
+  onDeleteEntries: (indices: number[]) => void;
+  onDeleteCategories: (indices: number[]) => void;
   onToggleActive: (index: number) => void;
 }
 
@@ -14,6 +16,7 @@ function EditMenu(props: EditMenuProps) {
     window.localStorage.getItem(SHOW_KNOWLEDGE_MENU_STORAGE_KEY) === "true",
   );
   let [selectedKnowledge, setSelectedKnowledge] = useState<number[]>([]);
+  let [selectedCategories, setSelectedCategories] = useState<number[]>([]);
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -27,6 +30,29 @@ function EditMenu(props: EditMenuProps) {
       prev.includes(idx) ? prev.filter((v) => v !== idx) : [...prev, idx],
     );
   }
+
+  function handleCategorySelection(idx: number) {
+    setSelectedCategories((prev) =>
+      prev.includes(idx) ? prev.filter((v) => v !== idx) : [...prev, idx],
+    );
+  }
+
+  const totalSelected = selectedKnowledge.length + selectedCategories.length;
+  const selectedCategorySet = new Set(selectedCategories);
+  const effectiveSelectedEntries = new Set(selectedKnowledge);
+  let flatIndex = 0;
+
+  props.knowledgeBase.forEach((category, categoryIndex) => {
+    const includeWholeCategory = selectedCategorySet.has(categoryIndex);
+    category.knowledgeBase.forEach(() => {
+      if (includeWholeCategory) {
+        effectiveSelectedEntries.add(flatIndex);
+      }
+      flatIndex += 1;
+    });
+  });
+
+  const displayedSelectedEntriesCount = effectiveSelectedEntries.size;
 
   return (
     <section className="flex w-full flex-col gap-3 border-t border-tropic-green/15 pt-2">
@@ -45,13 +71,15 @@ function EditMenu(props: EditMenuProps) {
         <section className="flex w-full flex-col justify-center rounded-lg border border-tropic-green/25 bg-tropic-eggwhite/65 p-3">
           <div className="mt-2 space-y-2">
             <div className="flex items-center justify-between gap-2 text-xs text-tropic-green/80">
-              {`${selectedKnowledge.length} entries selected`}
+              {`${displayedSelectedEntriesCount} entries selected`}
               <button
                 className="rounded-md border border-tropic-orange/45 bg-tropic-orange px-2.5 py-1 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-tropic-orange/90 focus:outline-none focus:ring-2 focus:ring-tropic-orange/40 disabled:cursor-not-allowed disabled:border-tropic-orange/20 disabled:bg-tropic-orange/40"
-                disabled={selectedKnowledge.length === 0}
+                disabled={totalSelected === 0}
                 onClick={() => {
-                  props.onDelete(selectedKnowledge);
+                  props.onDeleteEntries(selectedKnowledge);
+                  props.onDeleteCategories(selectedCategories);
                   setSelectedKnowledge([]);
+                  setSelectedCategories([]);
                 }}
               >
                 Delete Selected
@@ -61,7 +89,10 @@ function EditMenu(props: EditMenuProps) {
               knowledgeBase={props.knowledgeBase}
               onSelect={handleSelection}
               selected={(idx) => selectedKnowledge.includes(idx)}
+              onSelectCategory={handleCategorySelection}
+              selectedCategory={(idx) => selectedCategories.includes(idx)}
               onToggleActive={props.onToggleActive}
+              setKnowledgeBase={props.setKnowledgeBase}
             />
           </div>
         </section>
