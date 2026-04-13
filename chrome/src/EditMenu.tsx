@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { KnowledgeCategory } from "./types/knowledgeCategory";
 import { KnowledgeCategoryList } from "./KnowledgeCategoryList";
+import { SHOW_KNOWLEDGE_MENU_STORAGE_KEY } from "./storageKeys";
 
 interface EditMenuProps {
   knowledgeBase: KnowledgeCategory[];
@@ -9,8 +10,17 @@ interface EditMenuProps {
 }
 
 function EditMenu(props: EditMenuProps) {
-  let [showKnowledgeMenu, setShowKnowledgeMenu] = useState(false);
+  let [showKnowledgeMenu, setShowKnowledgeMenu] = useState(
+    window.localStorage.getItem(SHOW_KNOWLEDGE_MENU_STORAGE_KEY) === "true",
+  );
   let [selectedKnowledge, setSelectedKnowledge] = useState<number[]>([]);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      SHOW_KNOWLEDGE_MENU_STORAGE_KEY,
+      String(showKnowledgeMenu),
+    );
+  }, [showKnowledgeMenu]);
 
   function handleSelection(idx: number) {
     setSelectedKnowledge((prev) =>

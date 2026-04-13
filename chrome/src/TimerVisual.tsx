@@ -1,4 +1,4 @@
-import { useEffect, type CSSProperties } from "react";
+import { type CSSProperties } from "react";
 import "./App.css";
 
 interface TimerVisualProps {

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { KnowledgeCategory } from "./types/knowledgeCategory";
 import { EditMenu } from "./EditMenu";
 import { TimerMenu } from "./TimerMenu";
+import { KNOWLEDGE_BASE_STORAGE_KEY } from "./storageKeys";
 
 function App() {
   let [knowledgeBase, setKnowledgeBase] = useState<KnowledgeCategory[]>([]);
@@ -18,8 +19,10 @@ function App() {
   }, [knowledgeBase]);
 
   useEffect(() => {
-    chrome.storage.local.get("knowledgeBase").then((result) => {
-      setKnowledgeBase(result.knowledgeBase as KnowledgeCategory[]);
+    chrome.storage.local.get(KNOWLEDGE_BASE_STORAGE_KEY).then((result) => {
+      setKnowledgeBase(
+        result[KNOWLEDGE_BASE_STORAGE_KEY] as KnowledgeCategory[],
+      );
     });
   }, []);
 

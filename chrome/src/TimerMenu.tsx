@@ -3,6 +3,7 @@ import { TimerVisual } from "./TimerVisual";
 import { TimerSettings } from "./TimerSettings";
 import { TimerState } from "./types/timerState";
 import { Message } from "./types/message";
+import { SHOW_TIMER_SETTINGS_STORAGE_KEY } from "./storageKeys";
 
 const DEFAULT_PERIOD = 10;
 
@@ -23,13 +24,22 @@ async function sendTimerMessage(message: Message) {
 }
 
 function TimerMenu() {
-  let [showTimerSettings, setShowTimerSettings] = useState(false);
+  let [showTimerSettings, setShowTimerSettings] = useState(
+    window.localStorage.getItem(SHOW_TIMER_SETTINGS_STORAGE_KEY) === "true",
+  );
   let [period, setPeriod] = useState(DEFAULT_PERIOD);
   let [timeRemaining, setTimeRemaining] = useState(DEFAULT_PERIOD);
   let [isRunning, setIsRunning] = useState(false);
   let [endTimeMs, setEndTimeMs] = useState<number | null>(null);
   let [isModalShowing, setIsModalShowing] = useState(false);
   const progress = period > 0 ? (timeRemaining / period) * 100 : 0;
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      SHOW_TIMER_SETTINGS_STORAGE_KEY,
+      String(showTimerSettings),
+    );
+  }, [showTimerSettings]);
 
   useEffect(() => {
     async function configureTimer() {
