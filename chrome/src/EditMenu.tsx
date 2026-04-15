@@ -17,6 +17,7 @@ function EditMenu(props: EditMenuProps) {
   );
   let [selectedKnowledge, setSelectedKnowledge] = useState<number[]>([]);
   let [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+  let [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -25,13 +26,22 @@ function EditMenu(props: EditMenuProps) {
     );
   }, [showKnowledgeMenu]);
 
+  useEffect(() => {
+    if (!editMode) {
+      setSelectedKnowledge([]);
+      setSelectedCategories([]);
+    }
+  }, [editMode]);
+
   function handleSelection(idx: number) {
+    if (!editMode) return;
     setSelectedKnowledge((prev) =>
       prev.includes(idx) ? prev.filter((v) => v !== idx) : [...prev, idx],
     );
   }
 
   function handleCategorySelection(idx: number) {
+    if (!editMode) return;
     setSelectedCategories((prev) =>
       prev.includes(idx) ? prev.filter((v) => v !== idx) : [...prev, idx],
     );
@@ -71,19 +81,34 @@ function EditMenu(props: EditMenuProps) {
         <section className="flex w-full flex-col justify-center rounded-lg border border-tropic-green/25 bg-tropic-eggwhite/65 p-3">
           <div className="mt-2 space-y-2">
             <div className="flex items-center justify-between gap-2 text-xs text-tropic-green/80">
-              {`${displayedSelectedEntriesCount} entries selected`}
-              <button
-                className="rounded-md border border-tropic-orange/45 bg-tropic-orange px-2.5 py-1 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-tropic-orange/90 focus:outline-none focus:ring-2 focus:ring-tropic-orange/40 disabled:cursor-not-allowed disabled:border-tropic-orange/20 disabled:bg-tropic-orange/40"
-                disabled={totalSelected === 0}
-                onClick={() => {
-                  props.onDeleteEntries(selectedKnowledge);
-                  props.onDeleteCategories(selectedCategories);
-                  setSelectedKnowledge([]);
-                  setSelectedCategories([]);
-                }}
-              >
-                Delete Selected
-              </button>
+              <label className="flex min-w-0 flex-col gap-1 text-left">
+                <span className="text-xs text-tropic-green/80">Edit</span>
+                <input
+                  className="checkbox"
+                  type="checkbox"
+                  checked={editMode}
+                  onChange={(event) => setEditMode(event.target.checked)}
+                />
+              </label>
+              {editMode && (
+                <>
+                  <span className="ml-3">
+                    {`${displayedSelectedEntriesCount} entries selected`}
+                  </span>
+                  <button
+                    className="rounded-md border border-tropic-orange/45 bg-tropic-orange px-2.5 py-1 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-tropic-orange/90 focus:outline-none focus:ring-2 focus:ring-tropic-orange/40 disabled:cursor-not-allowed disabled:border-tropic-orange/20 disabled:bg-tropic-orange/40 text-[10px]"
+                    disabled={totalSelected === 0}
+                    onClick={() => {
+                      props.onDeleteEntries(selectedKnowledge);
+                      props.onDeleteCategories(selectedCategories);
+                      setSelectedKnowledge([]);
+                      setSelectedCategories([]);
+                    }}
+                  >
+                    Delete Selected
+                  </button>
+                </>
+              )}
             </div>
             <KnowledgeCategoryList
               knowledgeBase={props.knowledgeBase}
@@ -93,6 +118,7 @@ function EditMenu(props: EditMenuProps) {
               selectedCategory={(idx) => selectedCategories.includes(idx)}
               onToggleActive={props.onToggleActive}
               setKnowledgeBase={props.setKnowledgeBase}
+              editMode={editMode}
             />
           </div>
         </section>

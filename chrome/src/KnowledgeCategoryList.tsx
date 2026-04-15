@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { AddButton } from "./AddButton";
 import { KnowledgeList } from "./KnowledgeList";
 import { KnowledgeCategory } from "./types/knowledgeCategory";
+import { Knowledge } from "./types/knowledge";
 
 interface KnowledgeCategoryListProps {
   knowledgeBase: KnowledgeCategory[];
@@ -10,6 +12,7 @@ interface KnowledgeCategoryListProps {
   selectedCategory: (index: number) => boolean;
   onToggleActive: (index: number) => void;
   setKnowledgeBase: (knowledgeBase: KnowledgeCategory[]) => void;
+  editMode: boolean;
 }
 
 function KnowledgeCategoryList(props: KnowledgeCategoryListProps) {
@@ -55,22 +58,28 @@ function KnowledgeCategoryList(props: KnowledgeCategoryListProps) {
                 props.onToggleActive(categoryStartIndex + idx)
               }
               onSelectCategory={() => props.onSelectCategory(categoryIndex)}
-              selectedCategory={props.selectedCategory(categoryIndex)}
+              selectedCategory={
+                props.editMode && props.selectedCategory(categoryIndex)
+              }
               name={category.name}
+              editMode={props.editMode}
+              setKnowledgeBase={(knowledge: Knowledge[]) => {
+                props.setKnowledgeBase(
+                  props.knowledgeBase.map((currentCategory, index) =>
+                    index === categoryIndex
+                      ? { ...currentCategory, knowledgeBase: knowledge }
+                      : currentCategory,
+                  ),
+                );
+              }}
             />
           </li>
         );
       })}
-      {!creatingNew && (
-        <button
-          type="button"
-          className="mt-3 flex w-full items-center justify-between rounded px-2 py-1 text-left text-sm font-semibold text-tropic-green transition-colors hover:bg-tropic-lime/15 border-2 border-dashed border-tropic-green/15"
-          onClick={() => setCreatingNew(true)}
-        >
-          <span>+</span>
-        </button>
+      {props.editMode && !creatingNew && (
+        <AddButton onClick={() => setCreatingNew(true)} />
       )}
-      {creatingNew && (
+      {props.editMode && creatingNew && (
         <div className="relative mt-3">
           {duplicateName && (
             <span className="absolute -top-2 right-2 rounded bg-tropic-red px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white">
