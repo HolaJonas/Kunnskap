@@ -18,6 +18,21 @@ async function setExited() {
   await chrome.runtime.sendMessage({ type: "modal:exited" });
 }
 
+function normalizeAnswerValue(value) {
+  return String(value ?? "")
+    .trim()
+    .replace(/^\$+|\$+$/g, "")
+    .replace(/\\text\{([^}]*)\}/g, "$1")
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+}
+
+function isCorrectAnswer(userAnswer, expectedAnswer) {
+  return (
+    normalizeAnswerValue(userAnswer) === normalizeAnswerValue(expectedAnswer)
+  );
+}
+
 function createModal(question) {
   if (document.getElementById(MODAL_ROOT_ID)) return;
 
@@ -82,39 +97,75 @@ function createModal(question) {
   body.style.overflow = "auto";
   renderQuestion(body, question?.question ?? "\\text{No question available.}");
 
+  const answer = document.createElement("input");
+  answer.placeholder = "Answer";
+  answer.style.margin = "0";
+  answer.style.padding = "16px 17px";
+  answer.style.fontSize = "16px";
+  answer.style.lineHeight = "1.45";
+  answer.style.color = "#007f4e";
+  answer.style.background = "#ffffff";
+  answer.style.border = "1px solid rgb(0 127 78 / 0.18)";
+  answer.style.borderRadius = "10px";
+  answer.style.outline = "none";
+  answer.style.boxShadow = "none";
+  answer.style.wordBreak = "break-word";
+  answer.style.flex = "1";
+  answer.style.overflow = "auto";
+  answer.addEventListener("focus", () => {
+    answer.style.boxShadow = "0 0 0 2px rgb(0 127 78 / 0.2)";
+  });
+  answer.addEventListener("blur", () => {
+    answer.style.boxShadow = "none";
+  });
+  let tries = 0;
+  let cooldown = false;
+  let answerShown = false;
+
+  const reveal = document.createElement("div");
+  reveal.style.margin = "0";
+  reveal.style.padding = "8px 0 0 0";
+  reveal.style.fontSize = "15px";
+  reveal.style.color = "#b30000";
+  reveal.style.fontWeight = "600";
+  reveal.style.display = "none";
+  card.appendChild(reveal);
+
+  answer.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !cooldown) {
+      e.preventDefault();
+      if (isCorrectAnswer(answer.value, question?.answer)) setExited();
+      else {
+        tries++;
+        cooldown = true;
+        answer.disabled = true;
+        setTimeout(() => {
+          cooldown = false;
+          answer.disabled = false;
+          answer.focus();
+        }, 1000);
+        if (tries >= 3) {
+          reveal.textContent = `Correct answer: ${question?.answer ?? ""}`;
+          reveal.style.display = "block";
+        }
+      }
+    }
+  });
+
   const actionRow = document.createElement("div");
   actionRow.style.display = "flex";
   actionRow.style.justifyContent = "flex-end";
   actionRow.style.margin = "0";
   actionRow.style.padding = "2px 0";
 
-  const exitButton = document.createElement("button");
-  exitButton.type = "button";
-  exitButton.textContent = "Exit";
-  exitButton.style.border = "1px solid rgb(243 115 36 / 0.5)";
-  exitButton.style.borderRadius = "9px";
-  exitButton.style.padding = "9px 15px";
-  exitButton.style.background = "#f37324";
-  exitButton.style.color = "#ffffff";
-  exitButton.style.fontSize = "14px";
-  exitButton.style.fontWeight = "700";
-  exitButton.style.cursor = "pointer";
-  exitButton.style.boxShadow = "0 8px 16px rgb(243 115 36 / 0.35)";
-  exitButton.addEventListener("click", setExited);
-  exitButton.addEventListener("mouseenter", () => {
-    exitButton.style.filter = "brightness(0.96)";
-  });
-  exitButton.addEventListener("mouseleave", () => {
-    exitButton.style.filter = "";
-  });
-
   titleRow.appendChild(heading);
-  actionRow.appendChild(exitButton);
   card.appendChild(titleRow);
   card.appendChild(body);
+  card.appendChild(answer);
   card.appendChild(actionRow);
   overlay.appendChild(card);
   document.body.appendChild(overlay);
+  answer.focus();
 }
 
 function pauseBackground() {

@@ -326,7 +326,10 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
 function parseLatex(str) {
   return str
     .split("$")
-    .map((segment, index) => (index % 2 === 0 ? `\\text{${segment}}` : segment))
+    .map((segment, index) => {
+      if (index % 2 !== 0) return segment;
+      return segment ? `\\text{${segment}}` : "";
+    })
     .join("");
 }
 
@@ -357,7 +360,7 @@ chrome.runtime.onInstalled.addListener(() => {
         knowledgeBase: [
           {
             question: parseLatex("Solve $1 + 1 + 3$"),
-            answer: parseLatex("$2$"),
+            answer: parseLatex("$5$"),
             bidirectional: false,
             category: "Math",
             active: true,
