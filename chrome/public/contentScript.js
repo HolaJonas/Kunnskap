@@ -31,39 +31,89 @@ function createModal(question) {
   overlay.style.display = "flex";
   overlay.style.alignItems = "center";
   overlay.style.justifyContent = "center";
-  overlay.style.background = "rgba(0, 0, 0, 0.5)";
+  overlay.style.padding = "16px";
+  overlay.style.boxSizing = "border-box";
+  overlay.style.background = "rgb(0 0 0 / 0.2)";
+  overlay.style.backdropFilter = "blur(3px)";
+  overlay.style.fontFamily =
+    '"Segoe UI", "Trebuchet MS", system-ui, sans-serif';
+  overlay.style.fontSize = "16px";
+  overlay.style.color = "#007f4e";
 
-  const background = document.createElement("div");
-  background.style.width = "min(420px, calc(100vw - 2rem))";
-  background.style.padding = "1rem 1.25rem";
-  background.style.background = "#ffffff";
-  background.style.color = "#000000";
-  background.style.fontFamily = "ui-sans-serif, system-ui, sans-serif";
+  const card = document.createElement("div");
+  card.style.width = "450px";
+  card.style.minWidth = "450px";
+  card.style.maxWidth = "450px";
+  card.style.maxHeight = "min(360px, calc(100vh - 32px))";
+  card.style.borderRadius = "14px";
+  card.style.border = "1px solid rgb(0 127 78 / 0.24)";
+  card.style.background = "rgb(248 246 227 / 0.94)";
+  card.style.boxShadow = "0 22px 44px rgb(0 0 0 / 0.2)";
+  card.style.overflow = "hidden";
+  card.style.padding = "15px";
+  card.style.display = "flex";
+  card.style.flexDirection = "column";
+  card.style.gap = "14px";
+
+  const titleRow = document.createElement("div");
+  titleRow.style.margin = "0";
+  titleRow.style.padding = "2px 3px";
 
   const heading = document.createElement("h2");
-  heading.textContent = "Timer alarm";
-  heading.style.margin = "0 0 0.5rem 0";
-  heading.style.fontSize = "1.25rem";
+  heading.textContent = "Kunnskap";
+  heading.style.margin = "0";
+  heading.style.fontSize = "18px";
+  heading.style.lineHeight = "1.25";
+  heading.style.color = "#007f4e";
+  heading.style.fontWeight = "700";
+  heading.style.letterSpacing = "0.03em";
 
   const body = document.createElement("p");
-  renderQuestion(body, question.question);
-  body.style.margin = "0 0 0.9rem 0";
+  body.style.margin = "0";
+  body.style.padding = "16px 17px";
+  body.style.fontSize = "16px";
+  body.style.lineHeight = "1.45";
+  body.style.color = "#007f4e";
+  body.style.background = "#ffffff";
+  body.style.border = "1px solid rgb(0 127 78 / 0.18)";
+  body.style.borderRadius = "10px";
+  body.style.wordBreak = "break-word";
+  body.style.flex = "1";
+  body.style.overflow = "auto";
+  renderQuestion(body, question?.question ?? "\\text{No question available.}");
+
+  const actionRow = document.createElement("div");
+  actionRow.style.display = "flex";
+  actionRow.style.justifyContent = "flex-end";
+  actionRow.style.margin = "0";
+  actionRow.style.padding = "2px 0";
 
   const exitButton = document.createElement("button");
   exitButton.type = "button";
   exitButton.textContent = "Exit";
-  exitButton.style.border = "none";
-  exitButton.style.borderRadius = "0.45rem";
-  exitButton.style.padding = "0.5rem 0.8rem";
-  exitButton.style.background = "red";
-  exitButton.style.color = "#000000";
+  exitButton.style.border = "1px solid rgb(243 115 36 / 0.5)";
+  exitButton.style.borderRadius = "9px";
+  exitButton.style.padding = "9px 15px";
+  exitButton.style.background = "#f37324";
+  exitButton.style.color = "#ffffff";
+  exitButton.style.fontSize = "14px";
+  exitButton.style.fontWeight = "700";
   exitButton.style.cursor = "pointer";
+  exitButton.style.boxShadow = "0 8px 16px rgb(243 115 36 / 0.35)";
   exitButton.addEventListener("click", setExited);
+  exitButton.addEventListener("mouseenter", () => {
+    exitButton.style.filter = "brightness(0.96)";
+  });
+  exitButton.addEventListener("mouseleave", () => {
+    exitButton.style.filter = "";
+  });
 
-  background.appendChild(heading);
-  background.appendChild(body);
-  background.appendChild(exitButton);
-  overlay.appendChild(background);
+  titleRow.appendChild(heading);
+  actionRow.appendChild(exitButton);
+  card.appendChild(titleRow);
+  card.appendChild(body);
+  card.appendChild(actionRow);
+  overlay.appendChild(card);
   document.body.appendChild(overlay);
 }
 
@@ -113,6 +163,8 @@ function pauseBackground() {
 }
 
 function resumeBackground() {
+  if (!pauseState) return;
+
   const html = document.documentElement;
   const body = document.body;
 
