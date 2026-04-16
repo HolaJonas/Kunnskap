@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { AddButton } from "./AddButton";
 import { KnowledgeEntry } from "./KnowledgeEntry";
 import { Knowledge } from "./types/knowledge";
@@ -13,14 +13,26 @@ interface KnowledgeListProps {
   name: string;
   editMode: boolean;
   setKnowledgeBase: (knowledgeBase: Knowledge[]) => void;
+  setName: (name: string) => void;
 }
 
 function KnowledgeList(props: KnowledgeListProps) {
   let [showKnowledgeList, setShowKnowledgeList] = useState(false);
+  let [editingIndex, setEditingIndex] = useState<number | null>(null);
   let [creatingNew, setCreatingNew] = useState(false);
+  let [renameCategory, setRenameCategory] = useState(false);
   let [proposedQuestion, setProposedQuestion] = useState<Knowledge | null>(
     null,
   );
+  let [editingName, setEditingName] = useState(props.name);
+  const categoryRenameRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (renameCategory) {
+      categoryRenameRef.current?.focus();
+      setEditingName(props.name);
+    }
+  }, [renameCategory, props.name]);
 
   function resetNewEntry() {
     setCreatingNew(false);
@@ -61,6 +73,10 @@ function KnowledgeList(props: KnowledgeListProps) {
     resetNewEntry();
   }
 
+  useEffect(() => {
+    if (!props.editMode) setEditingIndex(null);
+  }, [props.editMode]);
+
   return (
     <>
       <div
@@ -69,24 +85,45 @@ function KnowledgeList(props: KnowledgeListProps) {
           if (!props.editMode) setShowKnowledgeList(!showKnowledgeList);
         }}
       >
+        {!renameCategory && (
+          <button
+            type="button"
+            className={`flex-1 rounded px-2 py-1 text-left text-sm font-semibold transition-colors ${
+              props.selectedCategory
+                ? "border border-tropic-lime bg-tropic-lime/20 text-tropic-green"
+                : `text-tropic-green ${props.editMode ? "hover:bg-tropic-orange/10" : ""}`
+            }`}
+            onClick={() => {
+              if (props.editMode) props.onSelectCategory();
+            }}
+            onDoubleClick={() => {
+              if (props.editMode) setRenameCategory(true);
+            }}
+          >
+            {props.name}
+          </button>
+        )}
+        {renameCategory && (
+          <input
+            className="flex w-full items-center justify-between rounded border-2 border-tropic-green/15 px-2 py-1 text-left text-sm font-semibold text-tropic-green transition-colors hover:bg-tropic-lime/15 focus:outline-none focus:ring-2 focus:ring-tropic-green/20"
+            ref={categoryRenameRef}
+            value={editingName}
+            onChange={(e) => setEditingName(e.target.value)}
+            onBlur={() => {
+              props.setName(editingName.trim());
+              setRenameCategory(false);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                props.setName(editingName.trim());
+                setRenameCategory(false);
+              }
+            }}
+          />
+        )}
         <button
           type="button"
-          className={`flex-1 rounded px-2 py-1 text-left text-sm font-semibold transition-colors ${
-            props.selectedCategory
-              ? "border border-tropic-lime bg-tropic-lime/20 text-tropic-green"
-              : `text-tropic-green ${props.editMode ? "hover:bg-tropic-orange/10" : ""}`
-          }`}
-          onClick={() => {
-            if (props.editMode) {
-              props.onSelectCategory();
-            }
-          }}
-        >
-          {props.name}
-        </button>
-        <button
-          type="button"
-          className={`rounded px-2 py-1 text-left text-sm font-semibold text-tropic-green transition-colors ${props.editMode ? "hover:bg-tropic-lime/15" : ""}`}
+          className={`rounded px-2 py-1 text-left text-sm font-semibold text-tropic-green transition-colors ${props.editMode ? "hover:bg-tropic-lime/15" : ""} transition-transform ${showKnowledgeList ? "rotate-180" : "rotate-0"}`}
           onClick={() => {
             if (props.editMode) setShowKnowledgeList(!showKnowledgeList);
           }}
@@ -111,9 +148,16 @@ function KnowledgeList(props: KnowledgeListProps) {
                   <KnowledgeEntry
                     knowledge={knowledge}
                     onSelect={() => props.onSelect(index)}
-                    selected={props.editMode && props.selected(index)}
+                    selected={
+                      props.editMode &&
+                      (props.selected(index) || props.selectedCategory)
+                    }
                     onToggleActive={() => props.onToggleActive(index)}
-                    editable={props.editMode}
+                    editable={props.editMode && editingIndex === index}
+                    onDoubleClick={() => {
+                      if (!props.editMode) return;
+                      setEditingIndex((cur) => (cur === index ? null : index));
+                    }}
                     setKnowledge={(knowledgeC: Knowledge) =>
                       props.setKnowledgeBase(
                         props.knowledgeBase.map((entry, entryIndex) =>

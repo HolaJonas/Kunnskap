@@ -62,6 +62,14 @@ function KnowledgeCategoryList(props: KnowledgeCategoryListProps) {
                 props.editMode && props.selectedCategory(categoryIndex)
               }
               name={category.name}
+              setName={(name: string) =>
+                props.setKnowledgeBase([
+                  ...props.knowledgeBase.filter(
+                    (e) => e.name !== category.name,
+                  ),
+                  { ...category, name: name },
+                ])
+              }
               editMode={props.editMode}
               setKnowledgeBase={(knowledge: Knowledge[]) => {
                 props.setKnowledgeBase(

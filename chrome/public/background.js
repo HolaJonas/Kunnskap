@@ -341,14 +341,14 @@ chrome.runtime.onInstalled.addListener(() => {
         knowledgeBase: [
           {
             question: parseLatex("Solve $1 + 1$"),
-            answer: parseLatex("$2$"),
+            answer: "\\text{2}",
             bidirectional: false,
             category: "Math",
             active: true,
           },
           {
             question: parseLatex("Solve $2 + 2$"),
-            answer: parseLatex("$4$"),
+            answer: "\\text{4}",
             bidirectional: false,
             category: "Math",
             active: true,
@@ -360,7 +360,7 @@ chrome.runtime.onInstalled.addListener(() => {
         knowledgeBase: [
           {
             question: parseLatex("Solve $1 + 1 + 3$"),
-            answer: parseLatex("$5$"),
+            answer: "\\text{5}",
             bidirectional: false,
             category: "Math",
             active: true,

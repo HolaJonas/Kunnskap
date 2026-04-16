@@ -9,6 +9,7 @@ interface KnowledgeEntryProps {
   selected: boolean;
   onToggleActive: () => void;
   editable: boolean;
+  onDoubleClick?: () => void;
 }
 
 function KnowledgeEntry(props: KnowledgeEntryProps) {
@@ -20,8 +21,9 @@ function KnowledgeEntry(props: KnowledgeEntryProps) {
           : "border-tropic-green/20 bg-white hover:border-tropic-orange/35 hover:bg-tropic-orange/10"
       }`}
       onClick={() => {
-        if (props.editable) props.onSelect();
+        if (!props.editable) props.onSelect();
       }}
+      onDoubleClick={() => props.onDoubleClick && props.onDoubleClick()}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
