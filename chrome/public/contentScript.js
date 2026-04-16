@@ -18,11 +18,51 @@ async function setExited() {
   await chrome.runtime.sendMessage({ type: "modal:exited" });
 }
 
+function inverseParseLatex(str) {
+  const segments = [];
+  let i = 0;
+
+  while (i < str.length) {
+    if (str.startsWith("\\text{", i)) {
+      let j = i + 6;
+      let depth = 1;
+
+      while (j < str.length && depth > 0) {
+        const char = str[j];
+        const prevChar = j > i ? str[j - 1] : "";
+
+        if (char === "{" && prevChar !== "\\") depth += 1;
+        if (char === "}" && prevChar !== "\\") depth -= 1;
+        j += 1;
+      }
+
+      const text = str.slice(i + 6, Math.max(i + 6, j - 1));
+      segments.push({ type: "text", value: text });
+      i = j;
+      continue;
+    }
+
+    const nextTextIndex = str.indexOf("\\text{", i);
+    const end = nextTextIndex === -1 ? str.length : nextTextIndex;
+    const math = str.slice(i, end);
+
+    if (math) {
+      segments.push({ type: "math", value: math });
+    }
+
+    i = end;
+  }
+
+  return segments
+    .map((segment) =>
+      segment.type === "text" ? segment.value : `$${segment.value}$`,
+    )
+    .join("");
+}
+
 function normalizeAnswerValue(value) {
-  return String(value ?? "")
+  return inverseParseLatex(String(value ?? ""))
     .trim()
-    .replace(/^\$+|\$+$/g, "")
-    .replace(/\\text\{([^}]*)\}/g, "$1")
     .replace(/\s+/g, " ")
     .toLowerCase();
 }
@@ -134,7 +174,8 @@ function createModal(question) {
   answer.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !cooldown) {
       e.preventDefault();
-      if (isCorrectAnswer(answer.value, question?.answer)) setExited();
+      if (isCorrectAnswer(answer.value, inverseParseLatex(question?.answer)))
+        setExited();
       else {
         tries++;
         cooldown = true;
@@ -145,7 +186,7 @@ function createModal(question) {
           answer.focus();
         }, 1000);
         if (tries >= 3) {
-          reveal.textContent = `Correct answer: ${question?.answer ?? ""}`;
+          reveal.textContent = `Correct answer: ${inverseParseLatex(question?.answer ?? "")}`;
           reveal.style.display = "block";
         }
       }

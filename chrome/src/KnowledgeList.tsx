@@ -63,13 +63,18 @@ function KnowledgeList(props: KnowledgeListProps) {
 
   return (
     <>
-      <div className="mt-3 flex w-full items-center gap-1">
+      <div
+        className={`mt-3 flex w-full items-center gap-1 ${props.editMode ? "" : "hover:bg-tropic-lime/15"}`}
+        onClick={() => {
+          if (!props.editMode) setShowKnowledgeList(!showKnowledgeList);
+        }}
+      >
         <button
           type="button"
           className={`flex-1 rounded px-2 py-1 text-left text-sm font-semibold transition-colors ${
             props.selectedCategory
               ? "border border-tropic-lime bg-tropic-lime/20 text-tropic-green"
-              : "text-tropic-green hover:bg-tropic-orange/10"
+              : `text-tropic-green ${props.editMode ? "hover:bg-tropic-orange/10" : ""}`
           }`}
           onClick={() => {
             if (props.editMode) {
@@ -81,8 +86,10 @@ function KnowledgeList(props: KnowledgeListProps) {
         </button>
         <button
           type="button"
-          className="rounded px-2 py-1 text-left text-sm font-semibold text-tropic-green transition-colors hover:bg-tropic-lime/15"
-          onClick={() => setShowKnowledgeList(!showKnowledgeList)}
+          className={`rounded px-2 py-1 text-left text-sm font-semibold text-tropic-green transition-colors ${props.editMode ? "hover:bg-tropic-lime/15" : ""}`}
+          onClick={() => {
+            if (props.editMode) setShowKnowledgeList(!showKnowledgeList);
+          }}
         >
           <span
             className={`text-xs transition-transform ${showKnowledgeList ? "rotate-180" : "rotate-0"}`}

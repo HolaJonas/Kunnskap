@@ -1,5 +1,6 @@
 import { InlineMath } from "react-katex";
 import { Knowledge } from "./types/knowledge";
+import { inverseParseLatex, parseLatex } from "./utils/latexParser";
 
 interface KnowledgeEntryProps {
   knowledge: Knowledge;
@@ -32,11 +33,11 @@ function KnowledgeEntry(props: KnowledgeEntryProps) {
             {!props.editable && <InlineMath math={props.knowledge.question} />}
             {props.editable && (
               <input
-                value={props.knowledge.question}
+                value={inverseParseLatex(props.knowledge.question)}
                 onChange={(e) =>
                   props.setKnowledge({
                     ...props.knowledge,
-                    question: e.target.value,
+                    question: parseLatex(e.target.value),
                   })
                 }
                 onClick={(event) => event.stopPropagation()}
@@ -49,11 +50,11 @@ function KnowledgeEntry(props: KnowledgeEntryProps) {
             {!props.editable && <InlineMath math={props.knowledge.answer} />}
             {props.editable && (
               <input
-                value={props.knowledge.answer}
+                value={inverseParseLatex(props.knowledge.answer)}
                 onChange={(e) =>
                   props.setKnowledge({
                     ...props.knowledge,
-                    answer: e.target.value,
+                    answer: parseLatex(e.target.value),
                   })
                 }
                 onClick={(event) => event.stopPropagation()}
