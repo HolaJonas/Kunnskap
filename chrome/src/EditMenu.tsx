@@ -19,6 +19,27 @@ function EditMenu(props: EditMenuProps) {
   let [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   let [editMode, setEditMode] = useState(false);
 
+  let runningOffset = 0;
+  const categoryRanges = props.knowledgeBase.map((category) => {
+    const start = runningOffset;
+    runningOffset += category.knowledgeBase.length;
+    return { start, endExclusive: runningOffset };
+  });
+
+  function getEntryIndicesForCategory(categoryIndex: number) {
+    const range = categoryRanges[categoryIndex];
+    if (!range) return [];
+    const indices = [];
+    for (let i = range.start; i < range.endExclusive; i += 1) indices.push(i);
+    return indices;
+  }
+
+  function getCategoryIndexForEntry(entryIndex: number) {
+    return categoryRanges.findIndex(
+      (range) => entryIndex >= range.start && entryIndex < range.endExclusive,
+    );
+  }
+
   useEffect(() => {
     window.localStorage.setItem(
       SHOW_KNOWLEDGE_MENU_STORAGE_KEY,
@@ -35,6 +56,33 @@ function EditMenu(props: EditMenuProps) {
 
   function handleSelection(idx: number) {
     if (!editMode) return;
+
+    const selectedCategoryIndex = getCategoryIndexForEntry(idx);
+
+    if (
+      selectedCategoryIndex !== -1 &&
+      selectedCategories.includes(selectedCategoryIndex)
+    ) {
+      const categoryEntries = getEntryIndicesForCategory(selectedCategoryIndex);
+
+      setSelectedCategories((prev) =>
+        prev.filter((categoryIndex) => categoryIndex !== selectedCategoryIndex),
+      );
+
+      setSelectedKnowledge((prev) => {
+        const next = new Set(prev.filter((entryIndex) => entryIndex !== idx));
+
+        categoryEntries.forEach((entryIndex) => {
+          if (entryIndex !== idx) {
+            next.add(entryIndex);
+          }
+        });
+
+        return [...next];
+      });
+      return;
+    }
+
     setSelectedKnowledge((prev) =>
       prev.includes(idx) ? prev.filter((v) => v !== idx) : [...prev, idx],
     );
@@ -42,9 +90,17 @@ function EditMenu(props: EditMenuProps) {
 
   function handleCategorySelection(idx: number) {
     if (!editMode) return;
-    setSelectedCategories((prev) =>
-      prev.includes(idx) ? prev.filter((v) => v !== idx) : [...prev, idx],
-    );
+
+    setSelectedCategories((prev) => {
+      if (prev.includes(idx)) return prev.filter((v) => v !== idx);
+
+      const categoryEntries = new Set(getEntryIndicesForCategory(idx));
+      setSelectedKnowledge((prevKnowledge) =>
+        prevKnowledge.filter((entryIndex) => !categoryEntries.has(entryIndex)),
+      );
+
+      return [...prev, idx];
+    });
   }
 
   const totalSelected = selectedKnowledge.length + selectedCategories.length;
