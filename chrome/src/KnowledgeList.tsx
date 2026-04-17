@@ -149,6 +149,24 @@ function KnowledgeList(props: KnowledgeListProps) {
             />
           </div>
         )}
+        <input
+          className="checkbox"
+          type="checkbox"
+          checked={
+            props.knowledgeBase.length > 0 &&
+            props.knowledgeBase.every((entry) => entry.active)
+          }
+          onChange={(event) => {
+            const nextActive = event.target.checked;
+            props.setKnowledgeBase(
+              props.knowledgeBase.map((current) => ({
+                ...current,
+                active: nextActive,
+              })),
+            );
+          }}
+          onClick={(event) => event.stopPropagation()}
+        />
         <button
           type="button"
           className={`rounded px-2 py-1 text-left text-sm font-semibold text-tropic-green transition-colors ${props.editMode ? "hover:bg-tropic-lime/15" : ""} transition-transform ${showKnowledgeList ? "rotate-180" : "rotate-0"}`}
