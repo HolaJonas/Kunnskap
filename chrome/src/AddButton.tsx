@@ -1,5 +1,6 @@
 interface AddButtonProps {
   onClick: () => void;
+  label: string;
 }
 
 function AddButton(props: AddButtonProps) {
@@ -9,6 +10,7 @@ function AddButton(props: AddButtonProps) {
       className="mt-3 flex w-full items-center justify-between rounded border-2 border-dashed border-tropic-green/15 px-2 py-1 text-left text-sm font-semibold text-tropic-green transition-colors hover:bg-tropic-lime/15"
       onClick={props.onClick}
     >
+      <span>{props.label}</span>
       <span>+</span>
     </button>
   );

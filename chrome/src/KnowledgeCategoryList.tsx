@@ -21,13 +21,18 @@ function KnowledgeCategoryList(props: KnowledgeCategoryListProps) {
   let runningOffset = 0;
   const createNewInputFocus = useRef<HTMLInputElement | null>(null);
   const normalizedProposedName = proposedName.trim();
+  const createNameIsEmpty = normalizedProposedName.length === 0;
   const duplicateName =
     normalizedProposedName.length > 0 && nameExists(normalizedProposedName);
+  const createNameIsInvalid = createNameIsEmpty || duplicateName;
 
-  function nameExists(text: string) {
+  function nameExists(text: string, excludedName?: string) {
     const normalizedName = text.trim().toLowerCase();
     return props.knowledgeBase.some(
-      (category) => category.name.trim().toLowerCase() === normalizedName,
+      (category) =>
+        category.name.trim().toLowerCase() === normalizedName &&
+        category.name.trim().toLowerCase() !==
+          excludedName?.trim().toLowerCase(),
     );
   }
 
@@ -43,13 +48,13 @@ function KnowledgeCategoryList(props: KnowledgeCategoryListProps) {
   }, [creatingNew]);
 
   return (
-    <ul className="divide-y divide divide-tropic-green/15">
+    <ul className="space-y-2">
       {props.knowledgeBase.map((category, categoryIndex) => {
         const categoryStartIndex = runningOffset;
         runningOffset += category.knowledgeBase.length;
 
         return (
-          <li key={`${category.name}-${categoryIndex}`} className="pb-2">
+          <li key={`${category.name}-${categoryIndex}`}>
             <KnowledgeList
               knowledgeBase={category.knowledgeBase}
               onSelect={(idx) => props.onSelect(categoryStartIndex + idx)}
@@ -70,6 +75,7 @@ function KnowledgeCategoryList(props: KnowledgeCategoryListProps) {
                   { ...category, name: name },
                 ])
               }
+              nameExists={nameExists}
               editMode={props.editMode}
               setKnowledgeBase={(knowledge: Knowledge[]) => {
                 props.setKnowledgeBase(
@@ -85,13 +91,13 @@ function KnowledgeCategoryList(props: KnowledgeCategoryListProps) {
         );
       })}
       {props.editMode && !creatingNew && (
-        <AddButton onClick={() => setCreatingNew(true)} />
+        <AddButton onClick={() => setCreatingNew(true)} label="Add Category" />
       )}
       {props.editMode && creatingNew && (
         <div className="relative mt-3">
-          {duplicateName && (
+          {createNameIsInvalid && (
             <span className="absolute -top-2 right-2 rounded bg-tropic-red px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white">
-              Already exists
+              {createNameIsEmpty ? "Cannot be empty" : "Already exists"}
             </span>
           )}
           <input
@@ -99,13 +105,13 @@ function KnowledgeCategoryList(props: KnowledgeCategoryListProps) {
             value={proposedName}
             onChange={(e) => setProposedName(e.target.value)}
             className={`flex w-full items-center justify-between rounded border px-2 py-1 text-left text-sm font-semibold text-tropic-green transition-colors hover:bg-tropic-lime/15 focus:outline-none ${
-              duplicateName
+              createNameIsInvalid
                 ? "border-tropic-red focus:ring-2 focus:ring-tropic-red/30"
                 : "border-tropic-green/20 focus:ring-2 focus:ring-tropic-green/20"
             }`}
             onBlur={resetInput}
             onKeyDown={(event) => {
-              if (event.key === "Enter" && !duplicateName) {
+              if (event.key === "Enter" && !createNameIsInvalid) {
                 props.setKnowledgeBase([
                   ...props.knowledgeBase,
                   { name: normalizedProposedName, knowledgeBase: [] },

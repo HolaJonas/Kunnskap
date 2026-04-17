@@ -14,6 +14,7 @@ interface KnowledgeListProps {
   editMode: boolean;
   setKnowledgeBase: (knowledgeBase: Knowledge[]) => void;
   setName: (name: string) => void;
+  nameExists: (name: string, excludedName?: string) => boolean;
 }
 
 function KnowledgeList(props: KnowledgeListProps) {
@@ -26,6 +27,13 @@ function KnowledgeList(props: KnowledgeListProps) {
   );
   let [editingName, setEditingName] = useState(props.name);
   const categoryRenameRef = useRef<HTMLInputElement | null>(null);
+
+  const normalizedEditingName = editingName.trim();
+  const renameNameIsEmpty = normalizedEditingName.length === 0;
+  const duplicateName =
+    normalizedEditingName.length > 0 &&
+    props.nameExists(normalizedEditingName, props.name);
+  const renameNameIsInvalid = renameNameIsEmpty || duplicateName;
 
   useEffect(() => {
     if (renameCategory) {
@@ -77,10 +85,23 @@ function KnowledgeList(props: KnowledgeListProps) {
     if (!props.editMode) setEditingIndex(null);
   }, [props.editMode]);
 
+  function finishRename() {
+    if (!renameNameIsInvalid) props.setName(normalizedEditingName);
+    setRenameCategory(false);
+  }
+
   return (
-    <>
+    <article
+      className={`mt-3 rounded-md border transition-colors ${
+        showKnowledgeList
+          ? "border-tropic-lime/60 bg-tropic-lime/10"
+          : "border-tropic-green/20 bg-white"
+      }`}
+    >
       <div
-        className={`mt-3 flex w-full items-center gap-1 ${props.editMode ? "" : "hover:bg-tropic-lime/15"}`}
+        className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 transition-colors ${
+          props.editMode ? "" : "hover:bg-tropic-lime/15"
+        }`}
         onClick={() => {
           if (!props.editMode) setShowKnowledgeList(!showKnowledgeList);
         }}
@@ -90,7 +111,7 @@ function KnowledgeList(props: KnowledgeListProps) {
             type="button"
             className={`flex-1 rounded px-2 py-1 text-left text-sm font-semibold transition-colors ${
               props.selectedCategory
-                ? "border border-tropic-lime bg-tropic-lime/20 text-tropic-green"
+                ? "border border-tropic-lime bg-tropic-lime/25 text-tropic-green"
                 : `text-tropic-green ${props.editMode ? "hover:bg-tropic-orange/10" : ""}`
             }`}
             onClick={() => {
@@ -100,26 +121,33 @@ function KnowledgeList(props: KnowledgeListProps) {
               if (props.editMode) setRenameCategory(true);
             }}
           >
-            {props.name}
+            <span>{props.name}</span>
           </button>
         )}
         {renameCategory && (
-          <input
-            className="flex w-full items-center justify-between rounded border-2 border-tropic-green/15 px-2 py-1 text-left text-sm font-semibold text-tropic-green transition-colors hover:bg-tropic-lime/15 focus:outline-none focus:ring-2 focus:ring-tropic-green/20"
-            ref={categoryRenameRef}
-            value={editingName}
-            onChange={(e) => setEditingName(e.target.value)}
-            onBlur={() => {
-              props.setName(editingName.trim());
-              setRenameCategory(false);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                props.setName(editingName.trim());
-                setRenameCategory(false);
-              }
-            }}
-          />
+          <div className="relative flex-1">
+            {renameNameIsInvalid && (
+              <span className="absolute -top-2 right-2 rounded bg-tropic-red px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white">
+                {renameNameIsEmpty ? "Cannot be empty" : "Already exists"}
+              </span>
+            )}
+            <input
+              className={`flex w-full items-center justify-between rounded border-2 px-2 py-1 text-left text-sm font-semibold text-tropic-green transition-colors hover:bg-tropic-lime/15 focus:outline-none ${
+                renameNameIsInvalid
+                  ? "border-tropic-red focus:ring-2 focus:ring-tropic-red/30"
+                  : "border-tropic-green/15 focus:ring-2 focus:ring-tropic-green/20"
+              }`}
+              ref={categoryRenameRef}
+              value={editingName}
+              onChange={(e) => setEditingName(e.target.value)}
+              onBlur={finishRename}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  finishRename();
+                }
+              }}
+            />
+          </div>
         )}
         <button
           type="button"
@@ -136,9 +164,9 @@ function KnowledgeList(props: KnowledgeListProps) {
         </button>
       </div>
       {showKnowledgeList && (
-        <section className="mt-2 w-full">
+        <section className="w-full border-t border-tropic-green/15 px-3 pb-3 pt-2">
           {props.knowledgeBase.length === 0 ? (
-            <p className="text-sm text-tropic-green/70">
+            <p className="rounded border border-dashed border-tropic-green/20 bg-white/60 px-3 py-2 text-sm text-tropic-green/70">
               No stored knowledge yet.
             </p>
           ) : (
@@ -176,6 +204,7 @@ function KnowledgeList(props: KnowledgeListProps) {
                 setCreatingNew(true);
                 setProposedQuestion(createKnowledgeProposal());
               }}
+              label="Add Knowledge"
             />
           )}
           {props.editMode && creatingNew && (
@@ -209,7 +238,7 @@ function KnowledgeList(props: KnowledgeListProps) {
           )}
         </section>
       )}
-    </>
+    </article>
   );
 }
 
