@@ -3,8 +3,8 @@ const KNOWLEDGE_STORAGE_KEY = "knowledgeBase";
 const ACTIVE_QUESTION_STORAGE_KEY = "activeQuestion";
 
 const defaultTimerState = {
-  durationSeconds: 10,
-  remainingSeconds: 10,
+  durationSeconds: 600,
+  remainingSeconds: 600,
   isRunning: false,
   endTimeMs: null,
   expired: false,
@@ -30,8 +30,17 @@ function shuffleFilterArray(arr, pool) {
     .map(({ val }) => val);
 }
 
-function normToArray(questions) {
-  return Array.isArray(questions) ? questions : [];
+function normToArray(value) {
+  const arr = Array.isArray(value) ? value : [];
+  if (arr.length === 0) return [];
+
+  if (Array.isArray(arr[0]?.knowledgeBase)) {
+    return arr.flatMap((category) =>
+      Array.isArray(category?.knowledgeBase) ? category?.knowledgeBase : [],
+    );
+  }
+
+  return arr;
 }
 
 async function getTimerState() {

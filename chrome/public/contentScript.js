@@ -19,6 +19,7 @@ async function setExited() {
 }
 
 function inverseParseLatex(str) {
+  if (!str) return str;
   const segments = [];
   let i = 0;
 
