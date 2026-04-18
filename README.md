@@ -15,15 +15,6 @@ Set a timer and knowledgebase, browse as usual, and when the timer expires Kunns
 - Lets you activate/deactivate specific entries.
 
 
-## Installation
-
-From the repository root:
-
-```bash
-cd chrome
-npm install
-```
-
 ## Load As Unpacked Extension
 
 1. Download and unzip the latest release.
