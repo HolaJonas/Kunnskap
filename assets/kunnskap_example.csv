@@ -1,0 +1,35 @@
+name;question;answer;bidirectional;active;category
+norsk_1;I;jeg;TRUE;TRUE;Vocabulary
+norsk_1;you;du;TRUE;TRUE;Vocabulary
+norsk_1;from;fra;TRUE;TRUE;Vocabulary
+norsk_1;Norway;Norge;TRUE;TRUE;Vocabulary
+norsk_1;Germany;Tyskland;TRUE;TRUE;Vocabulary
+norsk_1;Italy;Italia;TRUE;TRUE;Vocabulary
+norsk_1;hello;hei;TRUE;TRUE;Vocabulary
+norsk_1;yes;ja;TRUE;TRUE;Vocabulary
+norsk_1;no;nei;TRUE;TRUE;Vocabulary
+norsk_1;speak;snakke;TRUE;TRUE;Vocabulary
+norsk_1;å;to;FALSE;TRUE;Vocabulary
+norsk_1;gå;go;FALSE;TRUE;Vocabulary
+norsk_1;and;og;TRUE;TRUE;Vocabulary
+norsk_1;come;komme;TRUE;TRUE;Vocabulary
+norsk_1;English;engelsk;TRUE;TRUE;Vocabulary
+norsk_1;thanks;takk;TRUE;TRUE;Vocabulary
+norsk_1;vær så snill;please;TRUE;TRUE;Vocabulary
+norsk_1;sorry;beklager;TRUE;TRUE;Vocabulary
+norsk_1;forstå;understand;TRUE;TRUE;Vocabulary
+norsk_1;jeg forstår ikke;I don't understand;FALSE;TRUE;Translate
+norsk_1;what is your name?;hva heter du?;FALSE;TRUE;Translate
+norsk_1;my name is ...;jeg heter ...;FALSE;TRUE;Translate
+norsk_1;where are you from?;hvor er du fra?;FALSE;TRUE;Translate
+norsk_1;I am from Norway;jeg er fra Norge;FALSE;TRUE;Translate
+math_1;$5+7$;12;FALSE;TRUE;Solve
+math_1;$9-4$;5;FALSE;TRUE;Solve
+math_1;$6\times7$;42;FALSE;TRUE;Solve
+math_1;$\frac{20}{5}$;4;FALSE;TRUE;Simplify
+math_1;$12+15$;27;FALSE;TRUE;Solve
+math_1;$15-9$;6;FALSE;TRUE;Solve
+math_1;$8\times6$;48;FALSE;TRUE;Solve
+math_1;$\frac{49}{7}$;7;FALSE;TRUE;Simplify
+math_1;$9^2$;81;FALSE;TRUE;Solve
+math_1;$\sqrt{81}$;9;FALSE;TRUE;Solve
