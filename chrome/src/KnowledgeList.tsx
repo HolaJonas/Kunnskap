@@ -76,7 +76,7 @@ function KnowledgeList(props: KnowledgeListProps) {
         ...proposedQuestion,
         question: proposedQuestion.question.trim(),
         answer: proposedQuestion.answer.trim(),
-        category: props.name,
+        category: proposedQuestion.category.trim(),
       },
     ]);
     resetNewEntry();
@@ -188,7 +188,7 @@ function KnowledgeList(props: KnowledgeListProps) {
           ) : (
             <ul className="space-y-3">
               {props.knowledgeBase.map((knowledge, index) => (
-                <li key={`${knowledge.category}-${index}`}>
+                <li key={`${knowledge.question}-${index}`}>
                   <KnowledgeEntry
                     knowledge={knowledge}
                     onSelect={() => props.onSelect(index)}

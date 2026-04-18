@@ -4,6 +4,7 @@ import { KnowledgeCategory } from "./types/knowledgeCategory";
 import { EditMenu } from "./EditMenu";
 import { TimerMenu } from "./TimerMenu";
 import { KNOWLEDGE_BASE_STORAGE_KEY } from "./storageKeys";
+import { mergeImportedCategories } from "./utils/importParser";
 
 function App() {
   let [knowledgeBase, setKnowledgeBase] = useState<KnowledgeCategory[]>([]);
@@ -67,6 +68,12 @@ function App() {
     });
   }
 
+  function handleImport(importedCategories: KnowledgeCategory[]) {
+    setKnowledgeBase((prev) =>
+      mergeImportedCategories(prev, importedCategories),
+    );
+  }
+
   return (
     <div className="w-64 space-y-2 border border-tropic-green/20 bg-tropic-eggwhite p-3 shadow-sm select-none">
       <h1 className="pl-1 text-lg font-bold text-tropic-green">Kunnskap</h1>
@@ -77,6 +84,7 @@ function App() {
           onDeleteEntries={handleDeleteEntries}
           onDeleteCategories={handleDeleteCategories}
           onToggleActive={handleToggleActive}
+          onImport={handleImport}
           setKnowledgeBase={setKnowledgeBase}
         />
       </section>

@@ -1,4 +1,6 @@
 import { CheckBox } from "./Checkbox";
+import { FileSelector } from "./ImportButton";
+import { KnowledgeCategory } from "./types/knowledgeCategory";
 
 interface EditSelectionActionsProps {
   editMode: boolean;
@@ -6,6 +8,7 @@ interface EditSelectionActionsProps {
   displayedSelectedEntriesCount: number;
   totalSelected: number;
   onDeleteSelected: () => void;
+  onImport: (importedCategories: KnowledgeCategory[]) => void;
 }
 
 function EditSelectionActions(props: EditSelectionActionsProps) {
@@ -16,6 +19,7 @@ function EditSelectionActions(props: EditSelectionActionsProps) {
         onChecked={(event) => props.onEditModeChange(event.target.checked)}
         value={props.editMode}
       />
+      {!props.editMode && <FileSelector onImport={props.onImport} />}
       {props.editMode && (
         <>
           <span className="ml-3">

@@ -5,7 +5,7 @@ let pauseState = null;
 
 function renderQuestion(el, text) {
   const katexApi = window.katex;
-  katexApi.render(text, el, { throwOnError: false, strict: "warn" });
+  katexApi.render(text, el, { throwOnError: false, strict: false });
 }
 
 function removeModal() {
@@ -116,7 +116,7 @@ function createModal(question) {
   titleRow.style.padding = "2px 3px";
 
   const heading = document.createElement("h2");
-  heading.textContent = "Kunnskap";
+  heading.textContent = question?.category;
   heading.style.margin = "0";
   heading.style.fontSize = "18px";
   heading.style.lineHeight = "1.25";

@@ -16,6 +16,7 @@ interface EditMenuProps {
   onDeleteEntries: (indices: number[]) => void;
   onDeleteCategories: (indices: number[]) => void;
   onToggleActive: (index: number) => void;
+  onImport: (importedCategories: KnowledgeCategory[]) => void;
 }
 
 function EditMenu(props: EditMenuProps) {
@@ -122,6 +123,7 @@ function EditMenu(props: EditMenuProps) {
               onEditModeChange={setEditMode}
               displayedSelectedEntriesCount={displayedSelectedEntriesCount}
               totalSelected={totalSelected}
+              onImport={props.onImport}
               onDeleteSelected={() => {
                 props.onDeleteEntries(selectedKnowledge);
                 props.onDeleteCategories(selectedCategories);

@@ -330,53 +330,8 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
   if (changeInfo.status === "complete") await showModalBasedOnState(tabId);
 });
 
-//** Temporary testing env */
-
-function parseLatex(str) {
-  return str
-    .split("$")
-    .map((segment, index) => {
-      if (index % 2 !== 0) return segment;
-      return segment ? `\\text{${segment}}` : "";
-    })
-    .join("");
-}
-
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.set({
-    knowledgeBase: [
-      {
-        name: "test",
-        knowledgeBase: [
-          {
-            question: parseLatex("Solve $1 + 1$"),
-            answer: "\\text{2}",
-            bidirectional: false,
-            category: "Math",
-            active: true,
-          },
-          {
-            question: parseLatex("Solve $2 + 2$"),
-            answer: "\\text{4}",
-            bidirectional: false,
-            category: "Math",
-            active: true,
-          },
-        ],
-      },
-      {
-        name: "test2",
-        knowledgeBase: [
-          {
-            question: parseLatex("Solve $1 + 1 + 3$"),
-            answer: "\\text{5}",
-            bidirectional: false,
-            category: "Math",
-            active: true,
-          },
-        ],
-      },
-    ],
+    knowledgeBase: [],
   });
 });
-/** */
