@@ -1,6 +1,7 @@
 import { InlineMath } from "react-katex";
 import { Knowledge } from "./types/knowledge";
 import { inverseParseLatex, parseLatex } from "./utils/latexParser";
+import { CheckBox } from "./Checkbox";
 
 interface KnowledgeEntryProps {
   knowledge: Knowledge;
@@ -66,33 +67,26 @@ function KnowledgeEntry(props: KnowledgeEntryProps) {
           </div>
           {props.editable && (
             <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-tropic-green">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={props.knowledge.bidirectional}
-                  onChange={(event) =>
-                    props.setKnowledge({
-                      ...props.knowledge,
-                      bidirectional: event.target.checked,
-                    })
-                  }
-                  onClick={(event) => event.stopPropagation()}
-                />
-                Bidirectional
-              </label>
+              <CheckBox
+                value={props.knowledge.bidirectional}
+                onChecked={(event) =>
+                  props.setKnowledge({
+                    ...props.knowledge,
+                    bidirectional: event.target.checked,
+                  })
+                }
+                label={"Bidirectional"}
+              />
             </div>
           )}
         </div>
         {!props.editable && (
-          <input
-            type="checkbox"
-            className="checkbox"
-            checked={props.knowledge.active}
-            onChange={(event) => {
+          <CheckBox
+            value={props.knowledge.active}
+            onChecked={(event) => {
               event.stopPropagation();
               props.onToggleActive();
             }}
-            onClick={(event) => event.stopPropagation()}
           />
         )}
       </div>

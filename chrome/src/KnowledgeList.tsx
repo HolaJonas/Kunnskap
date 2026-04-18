@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { AddButton } from "./AddButton";
 import { KnowledgeEntry } from "./KnowledgeEntry";
 import { Knowledge } from "./types/knowledge";
+import { CheckBox } from "./Checkbox";
 
 interface KnowledgeListProps {
   knowledgeBase: Knowledge[];
@@ -149,14 +150,12 @@ function KnowledgeList(props: KnowledgeListProps) {
             />
           </div>
         )}
-        <input
-          className="checkbox"
-          type="checkbox"
-          checked={
+        <CheckBox
+          value={
             props.knowledgeBase.length > 0 &&
             props.knowledgeBase.every((entry) => entry.active)
           }
-          onChange={(event) => {
+          onChecked={(event) => {
             const nextActive = event.target.checked;
             props.setKnowledgeBase(
               props.knowledgeBase.map((current) => ({
@@ -165,7 +164,6 @@ function KnowledgeList(props: KnowledgeListProps) {
               })),
             );
           }}
-          onClick={(event) => event.stopPropagation()}
         />
         <button
           type="button"
