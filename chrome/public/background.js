@@ -30,6 +30,16 @@ function shuffleFilterArray(arr, pool) {
     .map(({ val }) => val);
 }
 
+function pickQuestionDirection(entry) {
+  if (!entry?.bidirectional) return entry;
+  if (Math.random() < 0.5) return entry;
+  return {
+    ...entry,
+    question: entry.answer,
+    answer: entry.question,
+  };
+}
+
 function normToArray(value) {
   const arr = Array.isArray(value) ? value : [];
   if (arr.length === 0) return [];
@@ -305,6 +315,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   const latestIndex = shuffled_questions.pop();
   let latest = fallbackQuestion;
   if (latestIndex !== undefined) latest = knowledgePool[latestIndex];
+  latest = pickQuestionDirection(latest);
   await setActiveQuestion(latest);
   const tabs = await chrome.tabs.query({});
   await Promise.all(tabs.map((tab) => showModalInTab(tab.id, latest)));

@@ -4,6 +4,17 @@ import { KnowledgeCategory } from "../types/knowledgeCategory";
 import { parseLatex } from "./latexParser";
 import { RawImportRow } from "../types/rawImportRow";
 
+function parseBooleanFlag(value: any): boolean {
+  if (typeof value === "boolean") return value;
+  if (typeof value !== "string") return false;
+
+  const normalized = value.trim().toLowerCase();
+  if (["true", "1", "yes", "y"].includes(normalized)) return true;
+  if (["false", "0", "no", "n", ""].includes(normalized)) return false;
+
+  return false;
+}
+
 function parseImportRows(rows: RawImportRow[]): KnowledgeCategory[] {
   const groupedByCategory = new Map<string, Knowledge[]>();
 
@@ -18,9 +29,9 @@ function parseImportRows(rows: RawImportRow[]): KnowledgeCategory[] {
     const knowledgeEntry = {
       question: parseLatex(question),
       answer: parseLatex(answer),
-      bidirectional: Boolean(row.bidirectional),
+      bidirectional: parseBooleanFlag(row.bidirectional),
       category: category,
-      active: Boolean(row.active),
+      active: parseBooleanFlag(row.active),
     };
 
     const currentCategory = groupedByCategory.get(categoryName) ?? [];
