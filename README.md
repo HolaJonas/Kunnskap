@@ -24,11 +24,11 @@ npm install
 
 ## Load As Unpacked Extension
 
-1. In `chrome/`, build the extension (`npm run build`).
+1. Download and unzip the latest release.
 2. Open your Chrome browser extension page: `chrome://extensions`
 3. Enable **Developer mode**.
 4. Click **Load unpacked**.
-5. Select the `chrome/dist` folder.
+5. Select the unzipped `kunnskap_vX.X.X/dist` folder.
 
 ## How To Use
 
