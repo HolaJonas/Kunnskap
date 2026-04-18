@@ -4,6 +4,8 @@ Kunnskap is a browser extension that interrupts unproductive, endless browsing w
 
 Set a timer and knowledgebase, browse as usual, and when the timer expires Kunnskap injects a question into your active tabs, blocking everything until the question is completed.
 
+[![YouTube Showcase](https://img.shields.io/badge/Watch-YouTube%20Demo-red?logo=youtube)](https://youtu.be/XdMY-2uppKs)
+
 ## What It Does
 
 - Runs a configurable countdown timer.
